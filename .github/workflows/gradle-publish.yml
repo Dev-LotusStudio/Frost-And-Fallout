@@ -26,20 +26,20 @@ jobs:
 
           echo "Checking PR: $head → $base"
 
-          # ✅ У release можна тільки з dev
-          if [[ "$base" == "release" && "$head" != "dev" ]]; then
-            echo "❌ Only 'dev' can be merged into 'release'."
-            exit 1
-          fi
-
-          # ✅ У dev можна з будь-якої гілки
+          # ✅ будь-що → dev
           if [[ "$base" == "dev" ]]; then
             echo "✅ Allowed: any → dev"
             exit 0
           fi
 
-          # ❌ Все інше заборонено
-          echo "❌ Pull requests allowed only into 'dev' (or dev → release)."
+          # ✅ dev → release
+          if [[ "$base" == "release" && "$head" == "dev" ]]; then
+            echo "✅ Allowed: dev → release"
+            exit 0
+          fi
+
+          # ❌ все інше блокуємо
+          echo "❌ Pull requests allowed only into 'dev' (any) or 'release' (only from dev)."
           exit 1
 
   build:

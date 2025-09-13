@@ -40,7 +40,7 @@ public final class LotusOffSeasonV2 extends JavaPlugin {
 
         instance = this;
         PlayerManager.getInstance().startGlobalTask();
-        //cfg
+        // config
         itemManager = new CustomItemManager();
         this.playerDataBase = new PlayerDataServiceImpl();
         this.saveZoneDataService = new SaveZoneDataServiceImpl();

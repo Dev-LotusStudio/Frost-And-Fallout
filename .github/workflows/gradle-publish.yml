@@ -1,0 +1,145 @@
+name: Build & Release
+
+on:
+  push:
+    branches:
+      - dev
+      - release
+
+permissions:
+  contents: write
+
+jobs:
+
+  build:
+    runs-on: ubuntu-latest
+    outputs:
+      new_version: ${{ steps.bump_version.outputs.new }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+      - name: Determine Version
+        id: bump_version
+        run: |
+          set -e
+          BRANCH_NAME=${GITHUB_REF##*/}
+          echo "Branch: $BRANCH_NAME"
+          # Останній тег для release або pre-release
+          if [ "$BRANCH_NAME" == "release" ]; then
+            LAST_TAG=$(git describe --tags --match "v[0-9]*\.[0-9]*\.[0-9]*" --abbrev=0 2>/dev/null || echo "")
+          else
+            LAST_TAG=$(git tag --list "v*-dev.*" --sort=-creatordate | head -n1 || echo "")
+          fi
+          echo "Last tag: $LAST_TAG"
+          # Розбираємо версію
+          if [ -n "$LAST_TAG" ]; then
+            BASE_VERSION=$(echo "$LAST_TAG" | sed 's/^v//' | sed 's/-dev.*//')
+            MAJOR=$(echo "$BASE_VERSION" | cut -d. -f1)
+            MINOR=$(echo "$BASE_VERSION" | cut -d. -f2)
+            PATCH=$(echo "$BASE_VERSION" | cut -d. -f3)
+          else
+            MAJOR=0; MINOR=0; PATCH=0
+          fi
+          echo "Parsed version: $MAJOR.$MINOR.$PATCH"
+          # Беремо коміти після тегу, якщо тег є
+          if [ -n "$LAST_TAG" ]; then
+            COMMITS=$(git log "$LAST_TAG"..HEAD --pretty=format:"%s")
+          else
+            COMMITS=$(git log HEAD --pretty=format:"%s")
+          fi
+          # Визначаємо bump
+          BUMP="patch"
+          if echo "$COMMITS" | grep -qE "^BREAKING CHANGE:"; then
+            BUMP="major"
+          elif echo "$COMMITS" | grep -qE "^feat:"; then
+            BUMP="minor"
+          fi
+          echo "Determined bump type: $BUMP"
+          # Збільшуємо версію
+          case $BUMP in
+            major)
+              MAJOR=$((MAJOR+1))
+              MINOR=0
+              PATCH=0
+              ;;
+            minor)
+              MINOR=$((MINOR+1))
+              PATCH=0
+              ;;
+            patch)
+              PATCH=$((PATCH+1))
+              ;;
+          esac
+
+          NEW_VERSION="$MAJOR.$MINOR.$PATCH"
+          # Для dev додаємо pre-release лічильник
+          if [ "$BRANCH_NAME" == "dev" ]; then
+            COUNT=$(git tag --list "v${NEW_VERSION}-dev.*" | wc -l | xargs)
+            COUNT=${COUNT:-0}
+            NEW_VERSION="${NEW_VERSION}-dev.$((COUNT+1))"
+          fi
+
+          echo "New version: $NEW_VERSION"
+          echo "new=$NEW_VERSION" >> $GITHUB_OUTPUT
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+      - name: Build with Gradle
+        run: ./gradlew build
+      - name: Rename JAR with repo name and version
+        run: |
+          VERSION="${{ steps.bump_version.outputs.new }}"
+          REPO_NAME=${GITHUB_REPOSITORY##*/}
+          JAR_PATH=$(find build/libs -name "*.jar" | head -n 1)
+          if [ -z "$JAR_PATH" ]; then
+            echo "Error: JAR not found"
+            exit 1
+          fi
+          NEW_JAR_NAME="${REPO_NAME}_v${VERSION}.jar"
+          echo "Renaming $JAR_PATH -> $NEW_JAR_NAME"
+          mv "$JAR_PATH" "build/libs/$NEW_JAR_NAME"
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: plugin
+          path: build/libs/*.jar
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: plugin
+          path: build/libs
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+      - name: Create Git Tag
+        run: |
+          VERSION="${{ needs.build.outputs.new_version }}"
+          if [ -z "$VERSION" ]; then
+            echo "Error: new_version is empty!"
+            exit 1
+          fi
+          echo "Creating git tag: v$VERSION"
+          git tag "v$VERSION"
+          git push origin "v$VERSION"
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ needs.build.outputs.new_version }}
+          name: ${{ github.ref == 'refs/heads/release' && format('{0} {1}', github.event.repository.name, needs.build.outputs.new_version) || format('{0} Dev v{1}', github.event.repository.name, needs.build.outputs.new_version) }}
+          files: build/libs/*.jar
+          prerelease: ${{ github.ref == 'refs/heads/dev' }}

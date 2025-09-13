@@ -71,12 +71,13 @@ jobs:
           distribution: temurin
           java-version: 17
 
-      - name: Determine Version
+            - name: Determine Version
         id: bump_version
         run: |
           set -e
           BRANCH_NAME=${GITHUB_REF##*/}
           echo "Branch: $BRANCH_NAME"
+
           # Останній тег для release або pre-release
           if [ "$BRANCH_NAME" == "release" ]; then
             LAST_TAG=$(git describe --tags --match "v[0-9]*\.[0-9]*\.[0-9]*" --abbrev=0 2>/dev/null || echo "")
@@ -84,6 +85,7 @@ jobs:
             LAST_TAG=$(git tag --list "v*-dev.*" --sort=-creatordate | head -n1 || echo "")
           fi
           echo "Last tag: $LAST_TAG"
+
           # Розбираємо версію
           if [ -n "$LAST_TAG" ]; then
             BASE_VERSION=$(echo "$LAST_TAG" | sed 's/^v//' | sed 's/-dev.*//')
@@ -94,12 +96,14 @@ jobs:
             MAJOR=0; MINOR=0; PATCH=0
           fi
           echo "Parsed version: $MAJOR.$MINOR.$PATCH"
+
           # Беремо коміти після тегу
           if [ -n "$LAST_TAG" ]; then
             COMMITS=$(git log "$LAST_TAG"..HEAD --pretty=format:"%s")
           else
             COMMITS=$(git log HEAD --pretty=format:"%s")
           fi
+
           # Визначаємо bump
           BUMP="patch"
           if echo "$COMMITS" | grep -qE "^BREAKING CHANGE:"; then
@@ -108,18 +112,40 @@ jobs:
             BUMP="minor"
           fi
           echo "Determined bump type: $BUMP"
+
           # Збільшуємо версію
           case $BUMP in
             major)
-              MAJOR=$((MAJOR+1)); MINOR=0; PATCH=0 ;;
+              MAJOR=$((MAJOR+1))
+              MINOR=0
+              PATCH=0
+              ;;
             minor)
-              MINOR=$((MINOR+1)); PATCH=0 ;;
+              MINOR=$((MINOR+1))
+              PATCH=0
+              ;;
             patch)
-              PATCH=$((PATCH+1)) ;;
+              PATCH=$((PATCH+1))
+              ;;
           esac
 
+          # ⚠️ Overflow патча на мінор
+          PATCH_MAX=10
+          if [ "$PATCH" -ge "$PATCH_MAX" ]; then
+            PATCH=0
+            MINOR=$((MINOR+1))
+          fi
+
+          # ⚠️ Overflow мінору на мейджор
+          MINOR_MAX=10
+          if [ "$MINOR" -ge "$MINOR_MAX" ]; then
+            MINOR=0
+            MAJOR=$((MAJOR+1))
+          fi
+
           NEW_VERSION="$MAJOR.$MINOR.$PATCH"
-          # Для dev додаємо pre-release
+
+          # Для dev додаємо pre-release лічильник
           if [ "$BRANCH_NAME" == "dev" ]; then
             COUNT=$(git tag --list "v${NEW_VERSION}-dev.*" | wc -l | xargs)
             COUNT=${COUNT:-0}

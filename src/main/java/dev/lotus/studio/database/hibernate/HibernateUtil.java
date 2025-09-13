@@ -6,10 +6,9 @@ import org.hibernate.SessionFactory;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.service.ServiceRegistry;
-import dev.lotus.studio.LotusOffSeasonV2;
+import dev.lotus.studio.Main;
 import dev.lotus.studio.database.hibernate.playerdata.PlayerDataBase;
 import dev.lotus.studio.database.hibernate.savezone.SaveZoneData;
-import dev.lotus.studio.database.hibernate.structures.StructuresData;
 
 import static org.bukkit.Bukkit.getLogger;
 import static org.bukkit.Bukkit.getServer;
@@ -34,7 +33,6 @@ public class HibernateUtil {
 
             // Додаємо анотовані класи
             configuration.addAnnotatedClass(PlayerDataBase.class);
-            configuration.addAnnotatedClass(StructuresData.class); // Додайте сюди інші сутності
             configuration.addAnnotatedClass(SaveZoneData.class); // Додайте сюди інші сутності
 
             ServiceRegistry serviceRegistry = new StandardServiceRegistryBuilder()
@@ -46,7 +44,7 @@ public class HibernateUtil {
         } catch (Exception e) {
             getLogger().severe("Failed to initialize Hibernate!");
             e.printStackTrace();
-            getServer().getPluginManager().disablePlugin(LotusOffSeasonV2.getInstance());
+            getServer().getPluginManager().disablePlugin(Main.getInstance());
             throw new ExceptionInInitializerError("Initial SessionFactory creation failed" + e);
         }
     }

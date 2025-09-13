@@ -5,7 +5,7 @@ import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
-import dev.lotus.studio.LotusOffSeasonV2;
+import dev.lotus.studio.Main;
 import dev.lotus.studio.handlers.RadiationHandler;
 import dev.lotus.studio.handlers.TemperatureHandler;
 
@@ -59,7 +59,7 @@ public class PlayerManager {
 
                 }
             }
-        }.runTaskTimer(LotusOffSeasonV2.getInstance(), 0, 20);
+        }.runTaskTimer(Main.getInstance(), 0, 20);
     }
 
 

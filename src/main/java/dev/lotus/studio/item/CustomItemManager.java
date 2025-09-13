@@ -8,7 +8,7 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataType;
-import dev.lotus.studio.LotusOffSeasonV2;
+import dev.lotus.studio.Main;
 import dev.lotus.studio.item.armor.CustomItem;
 import dev.lotus.studio.item.armor.OraxenCustomItem;
 import dev.lotus.studio.item.armor.StandardArmor;
@@ -36,17 +36,17 @@ public class CustomItemManager {
         this.isOraxenEnabled = Bukkit.getPluginManager().getPlugin("Oraxen") != null;
 
         if (!isOraxenEnabled) {
-            LotusOffSeasonV2.getInstance().getLogger().warning("Oraxen не найден. Предметы из Oraxen будут пропущены.");
+            Main.getInstance().getLogger().warning("Oraxen не найден. Предметы из Oraxen будут пропущены.");
         }
     }
 
     public void loadItems() {
-        File file = new File(LotusOffSeasonV2.getInstance().getDataFolder(), "items.yml");
+        File file = new File(Main.getInstance().getDataFolder(), "items.yml");
         if (!file.exists()) {
-            LotusOffSeasonV2.getInstance().saveResource("items.yml", false);
+            Main.getInstance().saveResource("items.yml", false);
         }
         if (!OraxenUtils.isOraxenEnable()){
-            LotusOffSeasonV2.getInstance().getLogger().warning("Oraxen не найден. Предметы из Oraxen будут пропущены.");
+            Main.getInstance().getLogger().warning("Oraxen не найден. Предметы из Oraxen будут пропущены.");
         }
         this.isOraxenEnabled = Bukkit.getPluginManager().getPlugin("Oraxen") != null;
 
@@ -82,10 +82,10 @@ public class CustomItemManager {
                     double radiationResistance = config.getDouble(path + ".radiationResistance");
 
                     items.put(key, new StandardArmor(material, displayName, lore, temperatureResistance, radiationResistance));
-                    LotusOffSeasonV2.getInstance().getLogger().info("Успешно загружен стандартный предмет: " + key);
+                    Main.getInstance().getLogger().info("Успешно загружен стандартный предмет: " + key);
                 } else if ("oraxen".equalsIgnoreCase(type)) {
                     if (!isOraxenEnabled) {
-                        LotusOffSeasonV2.getInstance().getLogger().warning("Oraxen-предмет '" + key + "' пропущен, так как Oraxen не активен.");
+                        Main.getInstance().getLogger().warning("Oraxen-предмет '" + key + "' пропущен, так как Oraxen не активен.");
                         continue;
                     }
 
@@ -97,14 +97,14 @@ public class CustomItemManager {
                     double radiationResistance = config.getDouble(path + ".radiationResistance");
 
                     items.put(key, new OraxenCustomItem(oraxenId, temperatureResistance, radiationResistance));
-                    LotusOffSeasonV2.getInstance().getLogger().info("Успешно загружен Oraxen-предмет: " + key);
+                    Main.getInstance().getLogger().info("Успешно загружен Oraxen-предмет: " + key);
                 } else {
                     throw new IllegalArgumentException("Неизвестный тип предмета '" + type + "' для ключа '" + key + "'");
                 }
             } catch (IllegalArgumentException e) {
-                LotusOffSeasonV2.getInstance().getLogger().warning("Ошибка при загрузке предмета с ключом '" + key + "': " + e.getMessage());
+                Main.getInstance().getLogger().warning("Ошибка при загрузке предмета с ключом '" + key + "': " + e.getMessage());
             } catch (Exception e) {
-                LotusOffSeasonV2.getInstance().getLogger().severe("Непредвиденная ошибка при загрузке предмета с ключом '" + key + "': " + e.getMessage());
+                Main.getInstance().getLogger().severe("Непредвиденная ошибка при загрузке предмета с ключом '" + key + "': " + e.getMessage());
                 e.printStackTrace();
             }
         }
@@ -127,10 +127,10 @@ public class CustomItemManager {
                     String viewType = config.getString(path + ".view_type");
 
                     viewItems.put(key, new StandardViewItem(material, displayName, lore, viewType));
-                    LotusOffSeasonV2.getInstance().getLogger().info("Успешно загружен стандартный view_item: " + key);
+                    Main.getInstance().getLogger().info("Успешно загружен стандартный view_item: " + key);
                 } else if ("oraxen".equalsIgnoreCase(type)) {
                     if (!isOraxenEnabled) {
-                        LotusOffSeasonV2.getInstance().getLogger().warning("Oraxen view_item '" + key + "' пропущен, так как Oraxen не активен.");
+                        Main.getInstance().getLogger().warning("Oraxen view_item '" + key + "' пропущен, так как Oraxen не активен.");
                         continue;
                     }
 
@@ -141,14 +141,14 @@ public class CustomItemManager {
                     String viewType = config.getString(path + ".view_type");
 
                     viewItems.put(key, new OraxenViewView(oraxenId, viewType));
-                    LotusOffSeasonV2.getInstance().getLogger().info("Успешно загружен Oraxen view_item: " + key);
+                    Main.getInstance().getLogger().info("Успешно загружен Oraxen view_item: " + key);
                 } else {
                     throw new IllegalArgumentException("Неизвестный тип view_item '" + type + "' для ключа '" + key + "'");
                 }
             } catch (IllegalArgumentException e) {
-                LotusOffSeasonV2.getInstance().getLogger().warning("Ошибка при загрузке view_item с ключом '" + key + "': " + e.getMessage());
+                Main.getInstance().getLogger().warning("Ошибка при загрузке view_item с ключом '" + key + "': " + e.getMessage());
             } catch (Exception e) {
-                LotusOffSeasonV2.getInstance().getLogger().severe("Непредвиденная ошибка при загрузке view_item с ключом '" + key + "': " + e.getMessage());
+                Main.getInstance().getLogger().severe("Непредвиденная ошибка при загрузке view_item с ключом '" + key + "': " + e.getMessage());
                 e.printStackTrace();
             }
         }
@@ -174,7 +174,7 @@ public class CustomItemManager {
                     int temperatureValue = config.getInt(path + ".foodValue.temperature");
 
                     eatItems.put(key, new StandardEatItem(material, displayName, lore, radiationValue, temperatureValue));
-                    LotusOffSeasonV2.getInstance().getLogger().info("Успешно загружен стандартный eat_item: " + key);
+                    Main.getInstance().getLogger().info("Успешно загружен стандартный eat_item: " + key);
                 } else if ("oraxen".equalsIgnoreCase(type)) {
                     String oraxenId = config.getString(path + ".oraxenId");
                     if (oraxenId == null || oraxenId.isEmpty()) {
@@ -185,14 +185,14 @@ public class CustomItemManager {
                     int temperatureValue = config.getInt(path + ".foodValue.temperature");
 
                     eatItems.put(key, new OraxenEatItem(oraxenId, radiationValue, temperatureValue));
-                    LotusOffSeasonV2.getInstance().getLogger().info("Успешно загружен Oraxen eat_item: " + key);
+                    Main.getInstance().getLogger().info("Успешно загружен Oraxen eat_item: " + key);
                 } else {
                     throw new IllegalArgumentException("Неизвестный тип eat_item '" + type + "' для ключа '" + key + "'");
                 }
             } catch (IllegalArgumentException e) {
-                LotusOffSeasonV2.getInstance().getLogger().warning("Ошибка при загрузке eat_item с ключом '" + key + "': " + e.getMessage());
+                Main.getInstance().getLogger().warning("Ошибка при загрузке eat_item с ключом '" + key + "': " + e.getMessage());
             } catch (Exception e) {
-                LotusOffSeasonV2.getInstance().getLogger().severe("Непредвиденная ошибка при загрузке eat_item с ключом '" + key + "': " + e.getMessage());
+                Main.getInstance().getLogger().severe("Непредвиденная ошибка при загрузке eat_item с ключом '" + key + "': " + e.getMessage());
                 e.printStackTrace();
             }
         }
@@ -312,11 +312,11 @@ public class CustomItemManager {
 
     public void reloadItemConfig(){
         try {
-            LotusOffSeasonV2.getInstance().getLogger().info("Items.yml reloading!");
+            Main.getInstance().getLogger().info("Items.yml reloading!");
             loadItems();
         } catch (Exception e){
-            LotusOffSeasonV2.getInstance().getLogger().warning("Items.yml reload failed");
+            Main.getInstance().getLogger().warning("Items.yml reload failed");
         }
-        LotusOffSeasonV2.getInstance().getLogger().info("Items.yml reload");
+        Main.getInstance().getLogger().info("Items.yml reload");
     }
 }

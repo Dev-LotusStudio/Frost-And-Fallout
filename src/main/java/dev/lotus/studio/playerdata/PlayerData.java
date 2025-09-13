@@ -2,7 +2,7 @@ package dev.lotus.studio.playerdata;
 
 import org.bukkit.entity.Player;
 import org.bukkit.metadata.FixedMetadataValue;
-import dev.lotus.studio.LotusOffSeasonV2;
+import dev.lotus.studio.Main;
 import dev.lotus.studio.handlers.RadiationHandler;
 import dev.lotus.studio.handlers.TemperatureHandler;
 
@@ -44,7 +44,7 @@ public class PlayerData  {
 
     public void setRadiationValue(double radiationValue) {
         double value = RadiationHandler.getInstance().clamped(radiationValue);
-        player.setMetadata("radiationValue", new FixedMetadataValue(LotusOffSeasonV2.getInstance(), value));
+        player.setMetadata("radiationValue", new FixedMetadataValue(Main.getInstance(), value));
         this.radiationValue = radiationValue;
     }
 
@@ -55,7 +55,7 @@ public class PlayerData  {
 
     public void setTemperatureValue(double temperatureValue) {
         double value = TemperatureHandler.getInstance().clamped(temperatureValue);
-        player.setMetadata("temperatureValue", new FixedMetadataValue(LotusOffSeasonV2.getInstance(), value));
+        player.setMetadata("temperatureValue", new FixedMetadataValue(Main.getInstance(), value));
         this.temperatureValue = temperatureValue;
     }
 

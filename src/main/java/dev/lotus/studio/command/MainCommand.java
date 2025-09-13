@@ -1,25 +1,22 @@
 package dev.lotus.studio.command;
 
+import net.kyori.adventure.text.Component;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import dev.lotus.studio.database.hibernate.savezone.SaveZoneDataService;
 import dev.lotus.studio.item.CustomItemManager;
-import dev.lotus.studio.trader.hoarder.Holder;
-import dev.lotus.studio.trader.hoarder.HolderManager;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class MainCommand extends AbstractCommand {
     private final CustomItemManager itemManager;
-    private final HolderManager holderManager;
     private final SafeZoneCommand saveZoneCommand;
 
-    public MainCommand(String command, CustomItemManager itemManager, HolderManager holderManager, SaveZoneDataService saveZoneDataService) {
+    public MainCommand(String command, CustomItemManager itemManager, SaveZoneDataService saveZoneDataService) {
         super(command);
         this.itemManager = itemManager;
-        this.holderManager = holderManager;
         this.saveZoneCommand =new SafeZoneCommand(saveZoneDataService);
     }
 
@@ -39,7 +36,6 @@ public class MainCommand extends AbstractCommand {
 
         switch (category) {
             case "item" -> handleItemCommands(player, label, args);
-            case "villager" -> handleVillagerCommands(player, label, args);
             case "savezone" -> saveZoneCommand.execute(player, label,args);
             case "reload" -> reloadConfig(player, label, args);
             default -> player.sendMessage("Неизвестная категория. Используйте /" + label + " для помощи.");
@@ -59,9 +55,8 @@ public class MainCommand extends AbstractCommand {
         String reload = args[1].toLowerCase();
 
         switch (reload) {
-            case "items" -> itemReloadCommand(player, label, args);
-            case "villager" -> villagerReloadCommand(player, label, args);
-            case "all" -> allReloadCommand(player, label, args);
+            case "items" -> itemReloadCommand(player, args);
+            case "all" -> allReloadCommand(player, args);
             case "help" -> sendReloadHelp(player, label);
             default -> player.sendMessage("Неизвестная команда для item. Используйте /" + label + " item help.");
         }
@@ -75,7 +70,7 @@ public class MainCommand extends AbstractCommand {
         player.sendMessage("§7/" + label + " all - Reload all configuration");
     }
 
-    private void itemReloadCommand(Player player, String label, String[] args) {
+    private void itemReloadCommand(Player player, String[] args) {
         player.sendMessage("Reloading config " + args[1]);
         try {
             itemManager.reloadItemConfig();
@@ -85,21 +80,12 @@ public class MainCommand extends AbstractCommand {
         player.sendMessage("Reload complete.");
     }
 
-    private void villagerReloadCommand(Player player, String label, String[] args) {
-        player.sendMessage("Reloading config " + args[1]);
-        try {
-            holderManager.getHoarderConfig().reloadConfig();
-        } catch (Exception e) {
-            player.sendMessage("Config reload failed.");
-        }
-        player.sendMessage("Reload complete.");
-    }
 
-    private void allReloadCommand(Player player, String label, String[] args) {
+
+    private void allReloadCommand(Player player, String[] args) {
         player.sendMessage("Reloading config " + args[1]);
         try {
-            villagerReloadCommand(player, label, args);
-            itemReloadCommand(player, label, args);
+            itemReloadCommand(player, args);
         } catch (Exception e) {
             player.sendMessage("Config reload failed.");
         }
@@ -180,7 +166,8 @@ public class MainCommand extends AbstractCommand {
         }
 
         player.getInventory().addItem(itemStack);
-        player.sendMessage("Вам выдан view item: " + (itemStack.getItemMeta() != null ? itemStack.getItemMeta().getDisplayName() : "Без имени"));
+        Component displayName = itemStack.getItemMeta().displayName();
+        player.sendMessage("Вам выдан view item: " + (itemStack.getItemMeta() != null ? displayName : "Без имени"));
     }
 
 
@@ -299,111 +286,15 @@ public class MainCommand extends AbstractCommand {
     }
 
 
-    // -- Villager ---
-    private void handleVillagerCommands(Player player, String label, String[] args) {
-        if (args.length < 2) {
-            sendVillagerHelp(player, label);
-            return;
-        }
-
-        String subCommand = args[1].toLowerCase();
-
-        switch (subCommand) {
-            case "horder" -> handleHorderCommands(player, label, args);
-            default -> player.sendMessage("Неизвестная команда для villager. Используйте /" + label + " villager help.");
-        }
-    }
-
-    private void sendVillagerHelp(Player player, String label) {
-        player.sendMessage("§aКоманды для villager:");
-        player.sendMessage("§7/" + label + " villager horder - Управление торговцами (Holder).");
-        player.sendMessage("§7/" + label + " villager help - Показать помощь для villager.");
-    }
 
 
-    // --- Horder Commands ---
-    private void handleHorderCommands(Player player, String label, String[] args) {
-        if (args.length < 4) {
-            sendHorderHelp(player, label);
-            return;
-        }
 
-        String action = args[2].toLowerCase();
 
-        switch (action) {
-            case "create" -> handleCreateHolder(player, args);
-            case "remove" -> handleRemoveHolder(player, args);
-            case "info" -> handleHolderInfo(player, args);
-            case "reload" -> handleReloadConfig(player);
-            case "help" -> sendHorderHelp(player, label);
-            default -> player.sendMessage("Неизвестная команда для horder. Используйте /" + label + " horder help.");
-        }
-    }
 
-    private void handleCreateHolder(Player player, String[] args) {
-        if (args.length < 5) {
-            player.sendMessage("Использование: /<command> horder create <name> [preset]");
-            return;
-        }
 
-        String name = args[3];
-        String preset = args.length > 3 ? args[4] : null;
 
-        if (holderManager.getHolderByName(name) != null) {
-            player.sendMessage("Holder с именем " + name + " уже существует.");
-            return;
-        }
 
-        holderManager.spawnHolderVillager(name, preset, player.getLocation());
-        player.sendMessage("Holder '" + name + "' создан.");
-    }
 
-    private void handleRemoveHolder(Player player, String[] args) {
-        if (args.length < 4) {
-            player.sendMessage("Использование: /<command> horder remove <name>");
-            return;
-        }
-
-        String name = args[3];
-        if (holderManager.getHolderByName(name) == null) {
-            player.sendMessage("Holder с именем " + name + " не найден.");
-            return;
-        }
-
-        holderManager.removeHolder(name);
-        player.sendMessage("Holder '" + name + "' удалён.");
-    }
-
-    private void handleHolderInfo(Player player, String[] args) {
-        if (args.length < 4) {
-            player.sendMessage("Использование: /<command> horder info <name>");
-            return;
-        }
-
-        String name = args[3];
-        Holder holder = holderManager.getHolderByName(name);
-        if (holder == null) {
-            player.sendMessage("Holder с именем " + name + " не найден.");
-            return;
-        }
-
-        player.sendMessage("Информация о Holder:");
-        player.sendMessage("Имя: " + holder.getName());
-        player.sendMessage("Описание: " + holder.getDescription());
-    }
-
-    private void handleReloadConfig(Player player) {
-        holderManager.reloadConfigAndVillagers();
-        player.sendMessage("Конфигурация перезагружена.");
-    }
-
-    private void sendHorderHelp(Player player, String label) {
-        player.sendMessage("Команды для horder:");
-        player.sendMessage("/" + label + " horder create <name> [preset] - Создать Holder с пресетом рецептов.");
-        player.sendMessage("/" + label + " horder remove <name> - Удалить Holder.");
-        player.sendMessage("/" + label + " horder info <name> - Показать информацию о Holder.");
-        player.sendMessage("/" + label + " horder reload - Перезагрузить конфигурацию Holder.");
-    }
 
 
 
@@ -415,14 +306,13 @@ public class MainCommand extends AbstractCommand {
 
         if (args.length == 1) {
             // Предлагаем категории верхнего уровня
-            suggestions.addAll(List.of("item", "villager", "savezone"));
+            suggestions.addAll(List.of("item", "savezone"));
         } else if (args.length == 2) {
             String category = args[0].toLowerCase();
             if ("item".equals(category)) {
                 suggestions.addAll(List.of("armor", "view", "eat", "help"));
-            } else if ("villager".equals(category)) {
-                suggestions.addAll(List.of("horder", "help"));
-            } else if ("savezone".equals(category)) {
+            }
+            else if ("savezone".equals(category)) {
                 suggestions.addAll(List.of("pos1", "pos2", "save","list"));
             }
         } else if (args.length == 3) {
@@ -430,18 +320,12 @@ public class MainCommand extends AbstractCommand {
             String subCommand = args[1].toLowerCase();
 
             if ("item".equals(category)) {
-                suggestions.addAll(List.of("give")); // Добавить сюда команду "give"
+                suggestions.add("give"); // Добавить сюда команду "give"
                 switch (subCommand) {
                     case "armor", "view", "eat" -> suggestions.addAll(List.of("give", "list", "help"));
                 }
-            } else if ("villager".equals(category) && "horder".equals(subCommand)) {
-                suggestions.addAll(List.of("create", "remove", "info", "list"));
-//            } else if ("savezone".equals(category)) {
-////                if ("save".equals(subCommand)) {
-////                    // Предлагаем список сохранённых зон
-////                    //suggestions.addAll(.getSavedZoneNames());
-////                }
             }
+
         } else if (args.length == 4) {
             String category = args[0].toLowerCase();
             String subCommand = args[1].toLowerCase();
@@ -464,10 +348,6 @@ public class MainCommand extends AbstractCommand {
                             suggestions.addAll(itemManager.getEatItems().keySet());
                         }
                     }
-                }
-            } else if ("villager".equals(category) && "horder".equals(subCommand)) {
-                if ("remove".equals(action) || "info".equals(action)) {
-                    suggestions.addAll(holderManager.getHolderNames());
                 }
             }
         }

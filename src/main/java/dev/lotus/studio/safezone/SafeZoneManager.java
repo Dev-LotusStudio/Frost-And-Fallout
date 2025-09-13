@@ -4,7 +4,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
-import dev.lotus.studio.LotusOffSeasonV2;
+import dev.lotus.studio.Main;
 import dev.lotus.studio.database.hibernate.savezone.SaveZoneData;
 import dev.lotus.studio.database.hibernate.savezone.SaveZoneDataService;
 
@@ -15,7 +15,7 @@ public class SafeZoneManager {
 
     private static final SafeZoneManager instance = new SafeZoneManager();
     private final List<SafeZone> safeZones = new ArrayList<>();
-    private final Plugin plugin = LotusOffSeasonV2.getInstance();
+    private final Plugin plugin = Main.getInstance();
     public static SafeZoneManager getInstance() {
         return instance;
     }

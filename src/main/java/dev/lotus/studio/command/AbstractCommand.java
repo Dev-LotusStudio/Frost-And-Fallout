@@ -3,14 +3,14 @@ package dev.lotus.studio.command;
 import org.bukkit.command.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import dev.lotus.studio.LotusOffSeasonV2;
+import dev.lotus.studio.Main;
 
 import java.util.ArrayList;
 import java.util.List;
 
 abstract class AbstractCommand implements CommandExecutor, TabCompleter {
     public AbstractCommand(String command){
-        PluginCommand pluginCommand = LotusOffSeasonV2.getInstance().getCommand(command);
+        PluginCommand pluginCommand = Main.getInstance().getCommand(command);
         if (pluginCommand != null){
             pluginCommand.setExecutor(this);
             pluginCommand.setTabCompleter(this);

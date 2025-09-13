@@ -3,7 +3,7 @@ package dev.lotus.studio.helpers;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.type.Campfire;
 import org.bukkit.scheduler.BukkitRunnable;
-import dev.lotus.studio.LotusOffSeasonV2;
+import dev.lotus.studio.Main;
 
 public class CampfireObserver {
     private final Block block;
@@ -34,7 +34,7 @@ public class CampfireObserver {
                 // Сбрасываем флаг после выполнения задачи
                 isExtinguishingScheduled = false;
             }
-        }.runTaskLater(LotusOffSeasonV2.getInstance(), CAMPFIRE_INT); // Тушим через заданное время
+        }.runTaskLater(Main.getInstance(), CAMPFIRE_INT); // Тушим через заданное время
     }
 
 

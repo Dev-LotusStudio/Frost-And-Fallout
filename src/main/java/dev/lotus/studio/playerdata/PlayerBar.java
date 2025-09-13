@@ -4,7 +4,7 @@ import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
-import dev.lotus.studio.LotusOffSeasonV2;
+import dev.lotus.studio.Main;
 import dev.lotus.studio.handlers.RadiationHandler;
 import dev.lotus.studio.handlers.TemperatureHandler;
 import dev.lotus.studio.item.CustomItemManager;
@@ -12,10 +12,10 @@ import dev.lotus.studio.item.view.ViewType;
 
 public class PlayerBar {
 
-    private final LotusOffSeasonV2 plugin;
+    private final Main plugin;
     private final CustomItemManager itemManager;
 
-    public PlayerBar(LotusOffSeasonV2 plugin, CustomItemManager itemManager) {
+    public PlayerBar(Main plugin, CustomItemManager itemManager) {
         this.plugin = plugin;
         this.itemManager = itemManager;
         startActionBarTask();

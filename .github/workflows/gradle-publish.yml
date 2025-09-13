@@ -71,7 +71,7 @@ jobs:
           distribution: temurin
           java-version: 17
 
-            - name: Determine Version
+      - name: Determine Version
         id: bump_version
         run: |
           set -e

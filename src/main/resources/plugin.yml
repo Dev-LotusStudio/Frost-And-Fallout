@@ -1,6 +1,6 @@
 name: LotusOffSeasonV2
 version: '1.0-SNAPSHOT'
-main: org.referix.lotusOffSeasonV2.LotusOffSeasonV2
+main: dev.lotus.studio.LotusOffSeasonV2
 api-version: '1.21'
 soft-depend: [Oraxen]
 commands:

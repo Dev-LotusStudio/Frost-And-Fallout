@@ -9,7 +9,6 @@ import org.hibernate.service.ServiceRegistry;
 import dev.lotus.studio.Main;
 import dev.lotus.studio.database.hibernate.playerdata.PlayerDataBase;
 import dev.lotus.studio.database.hibernate.savezone.SaveZoneData;
-import dev.lotus.studio.database.hibernate.structures.StructuresData;
 
 import static org.bukkit.Bukkit.getLogger;
 import static org.bukkit.Bukkit.getServer;
@@ -34,7 +33,6 @@ public class HibernateUtil {
 
             // Додаємо анотовані класи
             configuration.addAnnotatedClass(PlayerDataBase.class);
-            configuration.addAnnotatedClass(StructuresData.class); // Додайте сюди інші сутності
             configuration.addAnnotatedClass(SaveZoneData.class); // Додайте сюди інші сутності
 
             ServiceRegistry serviceRegistry = new StandardServiceRegistryBuilder()

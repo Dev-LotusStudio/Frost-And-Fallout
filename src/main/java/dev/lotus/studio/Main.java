@@ -5,8 +5,6 @@ import org.bukkit.plugin.java.JavaPlugin;
 import dev.lotus.studio.database.hibernate.playerdata.PlayerDataServiceImpl;
 import dev.lotus.studio.database.hibernate.savezone.SaveZoneDataService;
 import dev.lotus.studio.database.hibernate.savezone.SaveZoneDataServiceImpl;
-import dev.lotus.studio.database.hibernate.structures.StructureDataService;
-import dev.lotus.studio.database.hibernate.structures.StructureDataServiceImpl;
 import dev.lotus.studio.event.EatEvent;
 import dev.lotus.studio.event.JoinLeaveEvent;
 import dev.lotus.studio.item.CustomItemManager;
@@ -30,7 +28,6 @@ public final class Main extends JavaPlugin {
 
 
 
-    private StructureDataService structureDataService;
 
     @Override
     public void onEnable() {
@@ -55,8 +52,6 @@ public final class Main extends JavaPlugin {
 
         SafeZoneManager.getInstance().initializeZones(saveZoneDataService);
 
-        //test
-        structureDataService = new StructureDataServiceImpl();
     }
 
     @Override

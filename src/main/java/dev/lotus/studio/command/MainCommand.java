@@ -1,5 +1,6 @@
 package dev.lotus.studio.command;
 
+import net.kyori.adventure.text.Component;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -54,8 +55,8 @@ public class MainCommand extends AbstractCommand {
         String reload = args[1].toLowerCase();
 
         switch (reload) {
-            case "items" -> itemReloadCommand(player, label, args);
-            case "all" -> allReloadCommand(player, label, args);
+            case "items" -> itemReloadCommand(player, args);
+            case "all" -> allReloadCommand(player, args);
             case "help" -> sendReloadHelp(player, label);
             default -> player.sendMessage("Неизвестная команда для item. Используйте /" + label + " item help.");
         }
@@ -69,7 +70,7 @@ public class MainCommand extends AbstractCommand {
         player.sendMessage("§7/" + label + " all - Reload all configuration");
     }
 
-    private void itemReloadCommand(Player player, String label, String[] args) {
+    private void itemReloadCommand(Player player, String[] args) {
         player.sendMessage("Reloading config " + args[1]);
         try {
             itemManager.reloadItemConfig();
@@ -81,10 +82,10 @@ public class MainCommand extends AbstractCommand {
 
 
 
-    private void allReloadCommand(Player player, String label, String[] args) {
+    private void allReloadCommand(Player player, String[] args) {
         player.sendMessage("Reloading config " + args[1]);
         try {
-            itemReloadCommand(player, label, args);
+            itemReloadCommand(player, args);
         } catch (Exception e) {
             player.sendMessage("Config reload failed.");
         }
@@ -165,7 +166,8 @@ public class MainCommand extends AbstractCommand {
         }
 
         player.getInventory().addItem(itemStack);
-        player.sendMessage("Вам выдан view item: " + (itemStack.getItemMeta() != null ? itemStack.getItemMeta().getDisplayName() : "Без имени"));
+        Component displayName = itemStack.getItemMeta().displayName();
+        player.sendMessage("Вам выдан view item: " + (itemStack.getItemMeta() != null ? displayName : "Без имени"));
     }
 
 
@@ -287,12 +289,6 @@ public class MainCommand extends AbstractCommand {
 
 
 
-    private void sendVillagerHelp(Player player, String label) {
-        player.sendMessage("§aКоманды для villager:");
-        player.sendMessage("§7/" + label + " villager horder - Управление торговцами (Holder).");
-        player.sendMessage("§7/" + label + " villager help - Показать помощь для villager.");
-    }
-
 
 
 
@@ -310,14 +306,13 @@ public class MainCommand extends AbstractCommand {
 
         if (args.length == 1) {
             // Предлагаем категории верхнего уровня
-            suggestions.addAll(List.of("item", "villager", "savezone"));
+            suggestions.addAll(List.of("item", "savezone"));
         } else if (args.length == 2) {
             String category = args[0].toLowerCase();
             if ("item".equals(category)) {
                 suggestions.addAll(List.of("armor", "view", "eat", "help"));
-            } else if ("villager".equals(category)) {
-                suggestions.addAll(List.of("horder", "help"));
-            } else if ("savezone".equals(category)) {
+            }
+            else if ("savezone".equals(category)) {
                 suggestions.addAll(List.of("pos1", "pos2", "save","list"));
             }
         } else if (args.length == 3) {
@@ -325,18 +320,12 @@ public class MainCommand extends AbstractCommand {
             String subCommand = args[1].toLowerCase();
 
             if ("item".equals(category)) {
-                suggestions.addAll(List.of("give")); // Добавить сюда команду "give"
+                suggestions.add("give"); // Добавить сюда команду "give"
                 switch (subCommand) {
                     case "armor", "view", "eat" -> suggestions.addAll(List.of("give", "list", "help"));
                 }
-            } else if ("villager".equals(category) && "horder".equals(subCommand)) {
-                suggestions.addAll(List.of("create", "remove", "info", "list"));
-//            } else if ("savezone".equals(category)) {
-////                if ("save".equals(subCommand)) {
-////                    // Предлагаем список сохранённых зон
-////                    //suggestions.addAll(.getSavedZoneNames());
-////                }
             }
+
         } else if (args.length == 4) {
             String category = args[0].toLowerCase();
             String subCommand = args[1].toLowerCase();

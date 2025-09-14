@@ -1,4 +1,4 @@
-package dev.lotus.studio.database.hibernate.savezone;
+package dev.lotus.studio.database.savezone;
 
 import org.apache.commons.lang3.tuple.Pair;
 import org.bukkit.Location;
@@ -11,7 +11,7 @@ public interface SaveZoneDataService {
 
     void removeProtectZone(int id);
 
-    List<SaveZoneData> getAllSaveZones();
+    List<SafeZoneDataBase> getAllSaveZones();
 
     boolean isProtectZone(Location playerLocation);
 

@@ -4,8 +4,8 @@ package dev.lotus.studio.command;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import dev.lotus.studio.database.hibernate.savezone.SaveZoneData;
-import dev.lotus.studio.database.hibernate.savezone.SaveZoneDataService;
+import dev.lotus.studio.database.savezone.SafeZoneDataBase;
+import dev.lotus.studio.database.savezone.SaveZoneDataService;
 
 import java.util.HashMap;
 import java.util.List;
@@ -70,9 +70,9 @@ public class SafeZoneCommand {
     }
 
     private void removeZoneToDB(Player player, int id) {
-        service.getAllSaveZones().forEach(saveZoneData -> {
-            if (saveZoneData.getSafeZoneId() == id){
-                player.sendMessage("Сейв зону удаленно с названием: " + saveZoneData.getSafeZoneName() + " ID: " + saveZoneData.getSafeZoneId());
+        service.getAllSaveZones().forEach(safeZoneDataBase -> {
+            if (safeZoneDataBase.getSafeZoneId() == id){
+                player.sendMessage("Сейв зону удаленно с названием: " + safeZoneDataBase.getSafeZoneName() + " ID: " + safeZoneDataBase.getSafeZoneId());
             }
         });
         service.removeProtectZone(id);
@@ -80,17 +80,17 @@ public class SafeZoneCommand {
 
     private void listZoneToDB(Player player) {
         // Отримуємо всі збережені зони з бази даних
-        List<SaveZoneData> saveZoneDatas = service.getAllSaveZones();
+        List<SafeZoneDataBase> safeZoneDataBases = service.getAllSaveZones();
 
         // Якщо зон немає, повідомляємо гравця
-        if (saveZoneDatas.isEmpty()) {
+        if (safeZoneDataBases.isEmpty()) {
             player.sendMessage("нет зон.");
             return;
         }
 
         // Формуємо мапу з імен зон і їх ідентифікаторів
         HashMap<String, Integer> saveId = new HashMap<>();
-        saveZoneDatas.forEach(saveZoneData -> saveId.put(saveZoneData.getSafeZoneName(), saveZoneData.getSafeZoneId()));
+        safeZoneDataBases.forEach(saveZoneData -> saveId.put(saveZoneData.getSafeZoneName(), saveZoneData.getSafeZoneId()));
 
         // Виводимо гравцю список зон
         player.sendMessage("Список зон:");

@@ -1,8 +1,11 @@
-name: LotusOffSeasonV2
+name: FrostAndFallout
 version: '1.0-SNAPSHOT'
 main: dev.lotus.studio.Main
 api-version: '1.21'
 soft-depend: [Oraxen]
+libraries:
+  - org.xerial:sqlite-jdbc:3.50.3.0
+  - com.j256.ormlite:ormlite-jdbc:6.1
 commands:
   lotus:
     description: Перезагрузка конфигурации плагина.

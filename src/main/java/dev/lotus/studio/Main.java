@@ -2,6 +2,7 @@ package dev.lotus.studio;
 
 import com.j256.ormlite.support.ConnectionSource;
 import dev.lotus.studio.database.DatabaseInitializer;
+import dev.lotus.studio.database.playerdata.PlayerDataService;
 import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.java.JavaPlugin;
 import dev.lotus.studio.database.playerdata.PlayerDataServiceImpl;
@@ -26,7 +27,7 @@ public final class Main extends JavaPlugin {
 
 
 
-    private PlayerDataServiceImpl playerDataBase;
+    private PlayerDataService playerDataBase;
     private SaveZoneDataService saveZoneDataService;
     private DatabaseInitializer databaseInitializer;
 
@@ -40,13 +41,10 @@ public final class Main extends JavaPlugin {
         //cfg
         itemManager = new CustomItemManager();
         databaseInitializer = new DatabaseInitializer(this);
-        try {
-            ConnectionSource connectionSource = databaseInitializer.openConnection();
-            this.playerDataBase = new PlayerDataServiceImpl(connectionSource);
-            this.saveZoneDataService = new SaveZoneDataServiceImpl(connectionSource);
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
+        playerDataBase = databaseInitializer.getPlayerDataBase();
+        saveZoneDataService = databaseInitializer.getSaveZoneDataService();
+
+
 
         itemManager.loadItems();
         getServer().getPluginManager().registerEvents(new ArmorEvent(itemManager),this);
@@ -67,11 +65,13 @@ public final class Main extends JavaPlugin {
     public void onDisable() {
        PlayerManager.getInstance().getGlobalTask().cancel();
         // Закриття DataBase
-        databaseInitializer.closeConnection();
+        if (databaseInitializer != null) {
+            databaseInitializer.closeConnection();
+        }
         getLogger().info("LotusOffSeason plugin disabled!");
         HandlerList.unregisterAll(this);
     }
-    public PlayerDataServiceImpl getPlayerDataBase() {
+    public PlayerDataService getPlayerDataBase() {
         return playerDataBase;
     }
 

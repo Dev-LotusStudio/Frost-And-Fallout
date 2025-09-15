@@ -4,7 +4,11 @@ import com.j256.ormlite.jdbc.JdbcConnectionSource;
 import com.j256.ormlite.support.ConnectionSource;
 import com.j256.ormlite.table.TableUtils;
 import dev.lotus.studio.database.playerdata.PlayerDataBase;
+import dev.lotus.studio.database.playerdata.PlayerDataService;
+import dev.lotus.studio.database.playerdata.PlayerDataServiceImpl;
 import dev.lotus.studio.database.savezone.SafeZoneDataBase;
+import dev.lotus.studio.database.savezone.SaveZoneDataService;
+import dev.lotus.studio.database.savezone.SaveZoneDataServiceImpl;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
@@ -19,6 +23,10 @@ public class DatabaseInitializer {
     private final String databasePath;
     private ConnectionSource connectionSource;
 
+    private PlayerDataService playerDataBase;
+
+    private SaveZoneDataService saveZoneDataService;
+
     public DatabaseInitializer(JavaPlugin plugin) {
         this.plugin = plugin;
         this.logger = plugin.getLogger();
@@ -26,6 +34,7 @@ public class DatabaseInitializer {
         try {
             createDatabaseFile();
             createTables();
+            initialDataService();
         } catch (IOException | SQLException e) {
             throw new RuntimeException(e);
         }
@@ -36,15 +45,41 @@ public class DatabaseInitializer {
      */
     public void createDatabaseFile() throws IOException {
         File dataFolder = plugin.getDataFolder();
-        if (!dataFolder.exists()) dataFolder.mkdirs();
+        if (!dataFolder.exists()) {
+            if (!dataFolder.mkdirs()) {
+                logger.warning("Не вдалося створити директорію плагіна: " + dataFolder.getAbsolutePath());
+            }
+        }
 
         File databaseFile = new File(databasePath);
         if (!databaseFile.exists()) {
             if (databaseFile.createNewFile()) {
                 logger.info("Створено новий файл бази даних: " + databasePath);
+            } else {
+                logger.warning("Не вдалося створити файл бази даних: " + databasePath);
             }
         }
     }
+
+
+    /**
+     * Инициализация сервисов бд
+     */
+
+    public void initialDataService() {
+        try {
+            ConnectionSource connectionSource = openConnection();
+            this.playerDataBase = new PlayerDataServiceImpl(connectionSource);
+            this.saveZoneDataService = new SaveZoneDataServiceImpl(connectionSource);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+
+
+
+
 
     /**
      * Повертає ORMLite ConnectionSource
@@ -83,5 +118,20 @@ public class DatabaseInitializer {
                 logger.warning("Помилка закриття з’єднання: " + e.getMessage());
             }
         }
+    }
+
+    /**
+     * This method
+     * @return PlayerDataService
+     */
+    public PlayerDataService getPlayerDataBase() {
+        return playerDataBase;
+    }
+    /**
+     *  This method
+     * @return SaveZoneDataService
+     */
+    public SaveZoneDataService getSaveZoneDataService() {
+        return saveZoneDataService;
     }
 }

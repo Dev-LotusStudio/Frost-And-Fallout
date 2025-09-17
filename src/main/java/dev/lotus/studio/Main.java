@@ -1,19 +1,23 @@
 package dev.lotus.studio;
 
+import com.j256.ormlite.support.ConnectionSource;
+import dev.lotus.studio.database.DatabaseInitializer;
+import dev.lotus.studio.database.playerdata.PlayerDataService;
 import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.java.JavaPlugin;
-import dev.lotus.studio.database.hibernate.playerdata.PlayerDataServiceImpl;
-import dev.lotus.studio.database.hibernate.savezone.SaveZoneDataService;
-import dev.lotus.studio.database.hibernate.savezone.SaveZoneDataServiceImpl;
+import dev.lotus.studio.database.playerdata.PlayerDataServiceImpl;
+import dev.lotus.studio.database.savezone.SaveZoneDataService;
+import dev.lotus.studio.database.savezone.SaveZoneDataServiceImpl;
 import dev.lotus.studio.event.EatEvent;
 import dev.lotus.studio.event.JoinLeaveEvent;
 import dev.lotus.studio.item.CustomItemManager;
 import dev.lotus.studio.command.MainCommand;
-import dev.lotus.studio.database.hibernate.HibernateUtil;
 import dev.lotus.studio.event.ArmorEvent;
 import dev.lotus.studio.playerdata.PlayerBar;
 import dev.lotus.studio.playerdata.PlayerManager;
 import dev.lotus.studio.safezone.SafeZoneManager;
+
+import java.sql.SQLException;
 
 public final class Main extends JavaPlugin {
 
@@ -23,9 +27,9 @@ public final class Main extends JavaPlugin {
 
 
 
-    private PlayerDataServiceImpl playerDataBase;
+    private PlayerDataService playerDataBase;
     private SaveZoneDataService saveZoneDataService;
-
+    private DatabaseInitializer databaseInitializer;
 
 
 
@@ -36,8 +40,11 @@ public final class Main extends JavaPlugin {
         PlayerManager.getInstance().startGlobalTask();
         //cfg
         itemManager = new CustomItemManager();
-        this.playerDataBase = new PlayerDataServiceImpl();
-        this.saveZoneDataService = new SaveZoneDataServiceImpl();
+        databaseInitializer = new DatabaseInitializer(this);
+        playerDataBase = databaseInitializer.getPlayerDataBase();
+        saveZoneDataService = databaseInitializer.getSaveZoneDataService();
+
+
 
         itemManager.loadItems();
         getServer().getPluginManager().registerEvents(new ArmorEvent(itemManager),this);
@@ -57,14 +64,14 @@ public final class Main extends JavaPlugin {
     @Override
     public void onDisable() {
        PlayerManager.getInstance().getGlobalTask().cancel();
-        // Закриття SessionFactory Hibernate при вимкненні плагіна
-        if (HibernateUtil.getSessionFactory() != null) {
-            HibernateUtil.getSessionFactory().close();
+        // Закриття DataBase
+        if (databaseInitializer != null) {
+            databaseInitializer.closeConnection();
         }
         getLogger().info("LotusOffSeason plugin disabled!");
         HandlerList.unregisterAll(this);
     }
-    public PlayerDataServiceImpl getPlayerDataBase() {
+    public PlayerDataService getPlayerDataBase() {
         return playerDataBase;
     }
 

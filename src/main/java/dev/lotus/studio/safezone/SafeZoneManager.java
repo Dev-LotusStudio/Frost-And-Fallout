@@ -5,8 +5,8 @@ import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import dev.lotus.studio.Main;
-import dev.lotus.studio.database.hibernate.savezone.SaveZoneData;
-import dev.lotus.studio.database.hibernate.savezone.SaveZoneDataService;
+import dev.lotus.studio.database.savezone.SafeZoneDataBase;
+import dev.lotus.studio.database.savezone.SaveZoneDataService;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -59,10 +59,10 @@ public class SafeZoneManager {
     }
 
     public void initializeZones(SaveZoneDataService saveZoneDataService) {
-        List<SaveZoneData> zonesData = saveZoneDataService.getAllSaveZones();
+        List<SafeZoneDataBase> zonesData = saveZoneDataService.getAllSaveZones();
 
         try {
-            for (SaveZoneData data : zonesData) {
+            for (SafeZoneDataBase data : zonesData) {
                 try {
                     // Парсим данные координат
                     List<Pair<Location, Location>> parsedZones = parseZonesFromString(data.getLocationValue());

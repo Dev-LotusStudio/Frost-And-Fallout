@@ -10,17 +10,17 @@ import dev.lotus.studio.safezone.SafeZoneManager;
 
 public class RadiationHandler {
 
-    private double HEIGHT_LOW = -60;
-    private double HEIGHT_HIGH = 50;
+    private final double HEIGHT_LOW = -60;
+    private final double HEIGHT_HIGH = 50;
 
-    private double MIN_RADIATION_SPEED = 0;
-    private double MAX_RADIATION_SPEED = 2;
+    private final double MIN_RADIATION_SPEED = 0;
+    private final double MAX_RADIATION_SPEED = 2;
 
-    private double MIN_RADIATION_VALUE = 0;
-    private double MAX_PLAYER_RADIATION_VALUE = 20;
-    private double MAX_RADIATION_VALUE = 30;
+    private final double MIN_RADIATION_VALUE = 0;
+    private final double MAX_PLAYER_RADIATION_VALUE = 20;
+    private final double MAX_RADIATION_VALUE = 30;
 
-    private double MAX_DAMAGE_PER_SEC = 4;
+    private final double MAX_DAMAGE_PER_SEC = 4;
 
 
     private static final RadiationHandler instance = new RadiationHandler();
@@ -50,7 +50,7 @@ public class RadiationHandler {
 
         new_value += radiationSpeed;
 
-        new_value = Math.clamp(new_value, MIN_RADIATION_VALUE, MAX_RADIATION_VALUE);
+        new_value = Math.floor(Math.clamp(new_value, MIN_RADIATION_VALUE, MAX_RADIATION_VALUE) * 100) / 100.0;
 
         return new_value;
     }

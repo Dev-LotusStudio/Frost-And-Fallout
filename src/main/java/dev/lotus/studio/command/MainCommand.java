@@ -4,7 +4,7 @@ import net.kyori.adventure.text.Component;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import dev.lotus.studio.database.hibernate.savezone.SaveZoneDataService;
+import dev.lotus.studio.database.savezone.SaveZoneDataService;
 import dev.lotus.studio.item.CustomItemManager;
 
 import java.util.ArrayList;

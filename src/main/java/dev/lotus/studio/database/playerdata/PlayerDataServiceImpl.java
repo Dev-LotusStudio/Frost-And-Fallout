@@ -1,19 +1,35 @@
-package dev.lotus.studio.database.hibernate.playerdata;
+package dev.lotus.studio.database.playerdata;
 
+import com.j256.ormlite.support.ConnectionSource;
+
+import java.sql.SQLException;
 import java.util.HashMap;
 
 public class PlayerDataServiceImpl implements PlayerDataService {
-    private final PlayerDataRepository playerDataRepository = new PlayerDataRepository();
+    private final PlayerDataRepository playerDataRepository;
+
+    public PlayerDataServiceImpl(ConnectionSource connectionSource) throws SQLException {
+        this.playerDataRepository = new PlayerDataRepository(connectionSource);
+    }
 
     @Override
     public void savePlayer(String playerName, double freezeValue, double radiationValue) {
         PlayerDataBase playerDataBase = new PlayerDataBase(playerName, freezeValue, radiationValue);
-        playerDataRepository.savePlayerData(playerDataBase);
+        try {
+            playerDataRepository.savePlayerData(playerDataBase);
+        } catch (SQLException e) {
+            e.printStackTrace(); // або логування через plugin.getLogger()
+        }
     }
 
     @Override
     public PlayerDataBase getPlayer(String playerName) {
-        return playerDataRepository.getPlayerData(playerName);
+        try {
+            return playerDataRepository.getPlayerData(playerName);
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     @Override
@@ -22,13 +38,21 @@ public class PlayerDataServiceImpl implements PlayerDataService {
         if (playerDataBase != null) {
             playerDataBase.setFreezeValue(freezeValue);
             playerDataBase.setRadiationValue(radiationValue);
-            playerDataRepository.updatePlayerData(playerDataBase);
+            try {
+                playerDataRepository.updatePlayerData(playerDataBase);
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
         }
     }
 
     @Override
     public void deletePlayer(String playerName) {
-        playerDataRepository.deletePlayerData(playerName);
+        try {
+            playerDataRepository.deletePlayerData(playerName);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -40,7 +64,6 @@ public class PlayerDataServiceImpl implements PlayerDataService {
             values.put("radiationValue", playerDataBase.getRadiationValue());
             return values;
         }
-        return null; // або можна повернути порожній HashMap
+        return new HashMap<>(); // краще ніж null
     }
 }
-

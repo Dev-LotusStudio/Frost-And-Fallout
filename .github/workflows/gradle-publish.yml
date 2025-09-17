@@ -78,12 +78,14 @@ jobs:
           BRANCH_NAME=${GITHUB_REF##*/}
           echo "Branch: $BRANCH_NAME"
 
-          # Останній тег для release або pre-release
           if [ "$BRANCH_NAME" == "release" ]; then
-            LAST_TAG=$(git describe --tags --match "v[0-9]*\.[0-9]*\.[0-9]*" --abbrev=0 2>/dev/null || echo "")
+            # беремо тільки стабільні теги vX.Y.Z
+            LAST_TAG=$(git tag --list "v[0-9]*.[0-9]*.[0-9]*" --sort=-creatordate | tail -n1)
           else
-            LAST_TAG=$(git tag --list "v*-dev.*" --sort=-creatordate | head -n1 || echo "")
+            # беремо тільки dev/pre-release теги
+            LAST_TAG=$(git tag --list "v*-dev.*" --sort=-creatordate | tail -n1)
           fi
+
           echo "Last tag: $LAST_TAG"
 
           # Розбираємо версію
@@ -154,6 +156,7 @@ jobs:
 
           echo "New version: $NEW_VERSION"
           echo "new=$NEW_VERSION" >> $GITHUB_OUTPUT
+      
 
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew

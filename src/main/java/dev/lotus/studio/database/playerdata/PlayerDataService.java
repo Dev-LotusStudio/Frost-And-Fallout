@@ -1,4 +1,4 @@
-package dev.lotus.studio.database.hibernate.playerdata;
+package dev.lotus.studio.database.playerdata;
 
 import java.util.HashMap;
 

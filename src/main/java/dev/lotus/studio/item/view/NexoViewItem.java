@@ -1,26 +1,24 @@
 package dev.lotus.studio.item.view;
 
-import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
+import com.nexomc.nexo.items.ItemBuilder;
+import com.nexomc.nexo.api.NexoItems;
 
 import java.util.List;
 import java.util.Objects;
 
-public final class StandardViewItem implements ViewItem {
+public final class NexoViewItem implements ViewItem {
     private final String viewType;
-    private final Material material;
     private final String displayName;
     private final List<String> lore;
+    private final String id;
 
     private ItemStack template;
 
-    public StandardViewItem(@NotNull Material material,
-                            String displayName,
-                            @NotNull List<String> lore,
-                            @NotNull String viewType) {
-        this.material = Objects.requireNonNull(material, "material");
+    public NexoViewItem(@NotNull String id, String displayName, @NotNull List<String> lore, @NotNull String viewType) {
+        this.id = Objects.requireNonNull(id, "nexoId");
         this.displayName = displayName;
         this.lore = List.copyOf(lore);
         this.viewType = Objects.requireNonNull(viewType, "viewType");
@@ -34,7 +32,9 @@ public final class StandardViewItem implements ViewItem {
     @Override
     public @NotNull ItemStack getItemStack() {
         if (template == null) {
-            ItemStack itemStack = new ItemStack(material);
+            ItemBuilder itemBuilder = NexoItems.itemFromId(id);
+            if (itemBuilder == null) throw new IllegalArgumentException("Nexo item '" + id + "' не найден");
+            ItemStack itemStack = itemBuilder.build().clone();
             ItemMeta meta = itemStack.getItemMeta();
             if (meta != null) {
                 if (displayName != null) meta.setDisplayName(displayName);
@@ -43,6 +43,6 @@ public final class StandardViewItem implements ViewItem {
             }
             template = itemStack;
         }
-        return template.clone();
+         return template.clone();
     }
 }

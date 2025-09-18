@@ -1,19 +1,24 @@
 package dev.lotus.studio.playerdata;
 
-import net.kyori.adventure.text.Component;
-import org.bukkit.Bukkit;
-import org.bukkit.entity.Player;
-import org.bukkit.scheduler.BukkitRunnable;
 import dev.lotus.studio.Main;
 import dev.lotus.studio.handlers.RadiationHandler;
 import dev.lotus.studio.handlers.TemperatureHandler;
 import dev.lotus.studio.item.CustomItemManager;
-import dev.lotus.studio.item.view.ViewType;
+import dev.lotus.studio.item.view.ViewItem;
+import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
+import org.bukkit.scheduler.BukkitTask;
+import net.kyori.adventure.text.Component;
 
 public class PlayerBar {
 
     private final Main plugin;
     private final CustomItemManager itemManager;
+    private BukkitTask task;
+
+    private static final Component SEP = Component.text("  ");
+    private static final String ICON_RADIATION = "☢";
+    private static final String ICON_TEMPERATURE = "\uD83C\uDF21";
 
     public PlayerBar(Main plugin, CustomItemManager itemManager) {
         this.plugin = plugin;
@@ -21,51 +26,54 @@ public class PlayerBar {
         startActionBarTask();
     }
 
+    public void stop() {
+        if (task != null) task.cancel();
+    }
+
     private void startActionBarTask() {
-        new BukkitRunnable() {
-            @Override
-            public void run() {
-                for (Player player : Bukkit.getOnlinePlayers()) {
+        this.task = Bukkit.getScheduler().runTaskTimer(plugin, () -> {
+            for (Player player : Bukkit.getOnlinePlayers()) {
+                try {
                     updateActionBar(player);
+                } catch (Throwable t) {
+                    plugin.getLogger().warning("ActionBar error for " + player.getName() + ": " + t.getMessage());
                 }
             }
-        }.runTaskTimer(plugin, 0, 20); // Выполнять каждую секунду
+        }, 0L, 20L);
     }
 
     private void updateActionBar(Player player) {
-        ViewType customItem;
-        customItem = itemManager.getViewItemByItemStack(player.getInventory().getItemInMainHand());
-        if (customItem == null) {
-            customItem = itemManager.getViewItemByItemStack(player.getInventory().getItemInOffHand());
-        }
+        var mainHand = player.getInventory().getItemInMainHand();
+        var offHand  = player.getInventory().getItemInOffHand();
 
-        PlayerData playerData = PlayerManager.getInstance().getPlayerData(player);
-        double radiation = playerData.getRadiationValue();
+        ViewItem viewItem = itemManager.getViewItemByItemStack(mainHand);
+        if (viewItem == null) viewItem = itemManager.getViewItemByItemStack(offHand);
+
+        var playerData = PlayerManager.getInstance().getPlayerData(player);
+        double radiation   = playerData.getRadiationValue();
         double temperature = playerData.getTemperatureValue();
 
-        Component radiationBar = Component.text("");
-        Component temperatureBar = Component.text("");
+        Component radiationBar = Component.empty();
+        Component temperatureBar = Component.empty();
+        boolean hasRadiationBar = false;
+        boolean hasTemperatureBar = false;
 
-        if (customItem != null) {
-
-            if ("RADIATION".equalsIgnoreCase(customItem.getViewType())) {
-                radiationBar = RadiationHandler.getInstance().createProgressBar(radiation,"☢", true);
-            }
-
-            else if ("TEMPERATURE".equalsIgnoreCase(customItem.getViewType())) {
-                temperatureBar = TemperatureHandler.getInstance().createProgressBar(temperature, "\uD83C\uDF21",true);
+        if (viewItem != null) {
+            String vt = viewItem.getViewType();
+            if ("RADIATION".equalsIgnoreCase(vt)) {
+                radiationBar = RadiationHandler.getInstance().createProgressBar(radiation, ICON_RADIATION, true);
+                hasRadiationBar = true;
+            } else if ("TEMPERATURE".equalsIgnoreCase(vt)) {
+                temperatureBar = TemperatureHandler.getInstance().createProgressBar(temperature, ICON_TEMPERATURE, true);
+                hasTemperatureBar = true;
             }
         }
 
-        if (radiationBar.equals(Component.empty()) && temperatureBar.equals(Component.empty())) {
-            temperatureBar = TemperatureHandler.getInstance().createProgressBar(temperature, "\uD83C\uDF21", false);
+        if (!hasRadiationBar && !hasTemperatureBar) {
+            temperatureBar = TemperatureHandler.getInstance().createProgressBar(temperature, ICON_TEMPERATURE, false);
         }
 
-        Component actionBarMessage = radiationBar.append(Component.text("  ")).append(temperatureBar);
-
+        Component actionBarMessage = radiationBar.append(SEP).append(temperatureBar);
         player.sendActionBar(actionBarMessage);
     }
-
-
-
 }

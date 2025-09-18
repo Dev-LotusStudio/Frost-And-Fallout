@@ -15,16 +15,13 @@ eat_item:
 
 view_item:
   winter_viewer:
-    type: standard
+    type: standard # oraxen / nexo
     material: CLOCK
     displayName: "Счетчик Гейгера"
-    view_type: RADIATION
+    view_type: RADIATION # RADIATION / TEMPERATURE
     lore:
       - "Кажется, эта штука полезная..."
-  #  oraxen_viewer:
-  #    type: oraxen
-  #    oraxenId: "oraxen_viewer_id"
-  #    view_type: RADIATION
+#   oraxenId / nexoId: "viewer_id"
 
 
 items:

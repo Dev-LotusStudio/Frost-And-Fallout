@@ -1,6 +1,7 @@
 package dev.lotus.studio.command;
 
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -166,8 +167,13 @@ public class MainCommand extends AbstractCommand {
         }
 
         player.getInventory().addItem(itemStack);
-        Component displayName = itemStack.getItemMeta().displayName();
-        player.sendMessage("Вам выдан view item: " + (itemStack.getItemMeta() != null ? displayName : "Без имени"));
+
+        Component component = itemStack.getItemMeta().displayName();
+        String uiName = (component != null)
+                ? PlainTextComponentSerializer.plainText().serialize(component)
+                : "Без имени";
+
+        player.sendMessage("Вам выдан view item: " + uiName);
     }
 
 

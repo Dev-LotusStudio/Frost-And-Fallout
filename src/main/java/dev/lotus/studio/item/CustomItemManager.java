@@ -1,6 +1,5 @@
 package dev.lotus.studio.item;
 
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -15,10 +14,9 @@ import dev.lotus.studio.item.armor.StandardArmor;
 import dev.lotus.studio.item.eat.EatItem;
 import dev.lotus.studio.item.eat.OraxenEatItem;
 import dev.lotus.studio.item.eat.StandardEatItem;
-import dev.lotus.studio.item.view.ViewType;
-import dev.lotus.studio.item.view.OraxenViewView;
-import dev.lotus.studio.item.view.StandardViewItem;
-import dev.lotus.studio.utils.OraxenUtils;
+import dev.lotus.studio.item.view.ViewItem;
+import dev.lotus.studio.item.view.ViewItemFactory;
+import dev.lotus.studio.utils.ResourcePackUtils;
 
 import java.io.File;
 import java.util.HashMap;
@@ -27,17 +25,17 @@ import java.util.Map;
 
 public class CustomItemManager {
     private final Map<String, CustomItem> items = new HashMap<>();
-    private final Map<String, ViewType> viewItems = new HashMap<>();
-
+    private final Map<String, ViewItem> viewItems = new HashMap<>();
     private final Map<String, EatItem> eatItems = new HashMap<>();
 
-    private boolean isOraxenEnabled;
-    public CustomItemManager() {
-        this.isOraxenEnabled = Bukkit.getPluginManager().getPlugin("Oraxen") != null;
+    private final boolean isOraxenEnabled;
 
+    public CustomItemManager() {
+        this.isOraxenEnabled = ResourcePackUtils.isOraxenEnable();
         if (!isOraxenEnabled) {
             Main.getInstance().getLogger().warning("Oraxen не найден. Предметы из Oraxen будут пропущены.");
         }
+        // Nexo coming soon..
     }
 
     public void loadItems() {
@@ -45,27 +43,25 @@ public class CustomItemManager {
         if (!file.exists()) {
             Main.getInstance().saveResource("items.yml", false);
         }
-        if (!OraxenUtils.isOraxenEnable()){
-            Main.getInstance().getLogger().warning("Oraxen не найден. Предметы из Oraxen будут пропущены.");
-        }
-        this.isOraxenEnabled = Bukkit.getPluginManager().getPlugin("Oraxen") != null;
 
         FileConfiguration config = YamlConfiguration.loadConfiguration(file);
 
-        // Загрузка обычных предметов
+        // Clear existing items before loading new ones
+        items.clear();
+        viewItems.clear();
+        eatItems.clear();
+
         loadStandardItems(config);
-
-        // Загрузка view_item
         loadViewItems(config);
-
-        // Загрузка eat_item
         loadEatItems(config);
     }
 
-
-
     private void loadStandardItems(FileConfiguration config) {
-        for (String key : config.getConfigurationSection("items").getKeys(false)) {
+        if (!config.contains("items")) return;
+        var itemsSection = config.getConfigurationSection("items");
+        if (itemsSection == null) return;
+
+        for (String key : itemsSection.getKeys(false)) {
             String path = "items." + key;
 
             try {
@@ -75,7 +71,9 @@ public class CustomItemManager {
                 }
 
                 if ("standard".equalsIgnoreCase(type)) {
-                    Material material = Material.valueOf(config.getString(path + ".material"));
+                    String matName = config.getString(path + ".material");
+                    if (matName == null) throw new IllegalArgumentException("Отсутствует material");
+                    Material material = Material.valueOf(matName);
                     String displayName = config.getString(path + ".displayName");
                     List<String> lore = config.getStringList(path + ".lore");
                     double temperatureResistance = config.getDouble(path + ".temperatureResistance");
@@ -83,91 +81,83 @@ public class CustomItemManager {
 
                     items.put(key, new StandardArmor(material, displayName, lore, temperatureResistance, radiationResistance));
                     Main.getInstance().getLogger().info("Успешно загружен стандартный предмет: " + key);
+
                 } else if ("oraxen".equalsIgnoreCase(type)) {
                     if (!isOraxenEnabled) {
-                        Main.getInstance().getLogger().warning("Oraxen-предмет '" + key + "' пропущен, так как Oraxen не активен.");
+                        Main.getInstance().getLogger().warning("Oraxen-предмет '" + key + "' пропущен: Oraxen не активен");
                         continue;
                     }
 
                     String oraxenId = config.getString(path + ".oraxenId");
                     if (oraxenId == null || oraxenId.isEmpty()) {
-                        throw new IllegalArgumentException("Отсутствует 'oraxenId' для предмета с ключом '" + key + "'");
+                        throw new IllegalArgumentException("Отсутствует 'oraxenId' для предмета '" + key + "'");
                     }
                     double temperatureResistance = config.getDouble(path + ".temperatureResistance");
                     double radiationResistance = config.getDouble(path + ".radiationResistance");
 
                     items.put(key, new OraxenCustomItem(oraxenId, temperatureResistance, radiationResistance));
                     Main.getInstance().getLogger().info("Успешно загружен Oraxen-предмет: " + key);
+
                 } else {
                     throw new IllegalArgumentException("Неизвестный тип предмета '" + type + "' для ключа '" + key + "'");
                 }
+
             } catch (IllegalArgumentException e) {
-                Main.getInstance().getLogger().warning("Ошибка при загрузке предмета с ключом '" + key + "': " + e.getMessage());
+                Main.getInstance().getLogger().warning("Ошибка при загрузке предмета '" + key + "': " + e.getMessage());
             } catch (Exception e) {
-                Main.getInstance().getLogger().severe("Непредвиденная ошибка при загрузке предмета с ключом '" + key + "': " + e.getMessage());
+                Main.getInstance().getLogger().severe("Непредвиденная ошибка при загрузке предмета '" + key + "': " + e.getMessage());
                 e.printStackTrace();
             }
         }
     }
 
     private void loadViewItems(FileConfiguration config) {
-        for (String key : config.getConfigurationSection("view_item").getKeys(false)) {
+        if (!config.contains("view_item")) return;
+        var section = config.getConfigurationSection("view_item");
+        if (section == null) return;
+
+        ViewItemFactory factory = new ViewItemFactory();
+
+        for (String key : section.getKeys(false)) {
             String path = "view_item." + key;
 
             try {
-                String type = config.getString(path + ".type");
-                if (type == null) {
-                    throw new IllegalArgumentException("Не указан тип предмета для view_item с ключом '" + key + "'");
+                var itemSection = config.getConfigurationSection(path);
+                if (itemSection == null) {
+                    throw new IllegalArgumentException("Пустая секция для " + path);
                 }
 
-                if ("standard".equalsIgnoreCase(type)) {
-                    Material material = Material.valueOf(config.getString(path + ".material"));
-                    String displayName = config.getString(path + ".displayName");
-                    List<String> lore = config.getStringList(path + ".lore");
-                    String viewType = config.getString(path + ".view_type");
+                ViewItem viewType = factory.fromSection(itemSection);
+                viewItems.put(key, viewType);
+                Main.getInstance().getLogger().info("Загружен view_item: " + key + " (" + viewType.getViewType() + ")");
 
-                    viewItems.put(key, new StandardViewItem(material, displayName, lore, viewType));
-                    Main.getInstance().getLogger().info("Успешно загружен стандартный view_item: " + key);
-                } else if ("oraxen".equalsIgnoreCase(type)) {
-                    if (!isOraxenEnabled) {
-                        Main.getInstance().getLogger().warning("Oraxen view_item '" + key + "' пропущен, так как Oraxen не активен.");
-                        continue;
-                    }
-
-                    String oraxenId = config.getString(path + ".oraxenId");
-                    if (oraxenId == null || oraxenId.isEmpty()) {
-                        throw new IllegalArgumentException("Отсутствует 'oraxenId' для view_item с ключом '" + key + "'");
-                    }
-                    String viewType = config.getString(path + ".view_type");
-
-                    viewItems.put(key, new OraxenViewView(oraxenId, viewType));
-                    Main.getInstance().getLogger().info("Успешно загружен Oraxen view_item: " + key);
-                } else {
-                    throw new IllegalArgumentException("Неизвестный тип view_item '" + type + "' для ключа '" + key + "'");
-                }
-            } catch (IllegalArgumentException e) {
-                Main.getInstance().getLogger().warning("Ошибка при загрузке view_item с ключом '" + key + "': " + e.getMessage());
-            } catch (Exception e) {
-                Main.getInstance().getLogger().severe("Непредвиденная ошибка при загрузке view_item с ключом '" + key + "': " + e.getMessage());
-                e.printStackTrace();
+            } catch (IllegalArgumentException | IllegalStateException e) {
+                Main.getInstance().getLogger().warning("Ошибка при загрузке view_item '" + key + "': " + e.getMessage());
+            } catch (Throwable t) {
+                Main.getInstance().getLogger().severe("Непредвиденная ошибка при загрузке view_item '" + key + "': " + t.getMessage());
+                t.printStackTrace();
             }
         }
     }
 
     private void loadEatItems(FileConfiguration config) {
         if (!config.contains("eat_item")) return;
+        var section = config.getConfigurationSection("eat_item");
+        if (section == null) return;
 
-        for (String key : config.getConfigurationSection("eat_item").getKeys(false)) {
+        for (String key : section.getKeys(false)) {
             String path = "eat_item." + key;
 
             try {
                 String type = config.getString(path + ".type");
                 if (type == null) {
-                    throw new IllegalArgumentException("Не указан тип предмета для eat_item с ключом '" + key + "'");
+                    throw new IllegalArgumentException("Не указан тип предмета для eat_item '" + key + "'");
                 }
 
                 if ("standard".equalsIgnoreCase(type)) {
-                    Material material = Material.valueOf(config.getString(path + ".material"));
+                    String matName = config.getString(path + ".material");
+                    if (matName == null) throw new IllegalArgumentException("Отсутствует material");
+                    Material material = Material.valueOf(matName);
                     String displayName = config.getString(path + ".displayName");
                     List<String> lore = config.getStringList(path + ".lore");
                     int radiationValue = config.getInt(path + ".foodValue.radiation");
@@ -175,10 +165,16 @@ public class CustomItemManager {
 
                     eatItems.put(key, new StandardEatItem(material, displayName, lore, radiationValue, temperatureValue));
                     Main.getInstance().getLogger().info("Успешно загружен стандартный eat_item: " + key);
+
                 } else if ("oraxen".equalsIgnoreCase(type)) {
+                    if (!isOraxenEnabled) {
+                        Main.getInstance().getLogger().warning("Oraxen eat_item '" + key + "' пропущен: Oraxen не активен");
+                        continue;
+                    }
+
                     String oraxenId = config.getString(path + ".oraxenId");
                     if (oraxenId == null || oraxenId.isEmpty()) {
-                        throw new IllegalArgumentException("Отсутствует 'oraxenId' для eat_item с ключом '" + key + "'");
+                        throw new IllegalArgumentException("Отсутствует 'oraxenId' для eat_item '" + key + "'");
                     }
 
                     int radiationValue = config.getInt(path + ".foodValue.radiation");
@@ -186,75 +182,54 @@ public class CustomItemManager {
 
                     eatItems.put(key, new OraxenEatItem(oraxenId, radiationValue, temperatureValue));
                     Main.getInstance().getLogger().info("Успешно загружен Oraxen eat_item: " + key);
+
                 } else {
                     throw new IllegalArgumentException("Неизвестный тип eat_item '" + type + "' для ключа '" + key + "'");
                 }
+
             } catch (IllegalArgumentException e) {
-                Main.getInstance().getLogger().warning("Ошибка при загрузке eat_item с ключом '" + key + "': " + e.getMessage());
+                Main.getInstance().getLogger().warning("Ошибка при загрузке eat_item '" + key + "': " + e.getMessage());
             } catch (Exception e) {
-                Main.getInstance().getLogger().severe("Непредвиденная ошибка при загрузке eat_item с ключом '" + key + "': " + e.getMessage());
+                Main.getInstance().getLogger().severe("Непредвиденная ошибка при загрузке eat_item '" + key + "': " + e.getMessage());
                 e.printStackTrace();
             }
         }
     }
 
-
     public EatItem getEatItemByItemStack(ItemStack itemStack) {
-        if (itemStack == null || !itemStack.hasItemMeta()) {
-            return null;
-        }
-
+        if (itemStack == null || !itemStack.hasItemMeta()) return null;
         for (EatItem eatItem : eatItems.values()) {
-            if (eatItem.getItemStack().isSimilar(itemStack)) {
-                return eatItem;
-            }
+            try {
+                if (eatItem.getItemStack().isSimilar(itemStack)) return eatItem;
+            } catch (Exception ignored) {}
         }
-
         return null;
     }
 
-
     public CustomItem getCustomItemByItemStack(ItemStack itemStack) {
-        if (itemStack == null || !itemStack.hasItemMeta()) {
-            return null;
-        }
-
-
+        if (itemStack == null || !itemStack.hasItemMeta()) return null;
 
         NamespacedKey idKey = new NamespacedKey("oraxen", "id");
         String oraxenId = itemStack.getItemMeta().getPersistentDataContainer().get(idKey, PersistentDataType.STRING);
-        System.out.println(" ");
-        System.out.println("Oraxen id: " + oraxenId);
 
         if (oraxenId != null) {
             for (CustomItem item : items.values()) {
-
-                String itemOraxenId = item.getItemStack().getItemMeta().getPersistentDataContainer().get(idKey, PersistentDataType.STRING);
-
+                ItemStack customItemStack = item.getItemStack();
+                if (customItemStack == null || !customItemStack.hasItemMeta()) continue;
+                String itemOraxenId = customItemStack.getItemMeta().getPersistentDataContainer().get(idKey, PersistentDataType.STRING);
                 if (oraxenId.equals(itemOraxenId)) {
-                    System.out.println("FOUNNND WITH ORAXEN ITEM");
                     return item;
                 }
             }
         }
-
-
-        System.out.println("Проверка без praxen");
 
         if (!itemStack.getItemMeta().hasItemFlag(ItemFlag.HIDE_ARMOR_TRIM)) {
             return null;
         }
 
         for (CustomItem item : items.values()) {
-//            System.out.println(itemStack);
-//            System.out.println(item.getItemStack());
-//            System.out.println(" ");
-//            System.out.println(" ");
-//            System.out.println(" ");
             ItemStack customItemStack = item.getItemStack();
-            if (customItemStack == null || !customItemStack.hasItemMeta()) {
-                continue;
-            }
+            if (customItemStack == null || !customItemStack.hasItemMeta()) continue;
 
             var customMeta = customItemStack.getItemMeta();
             var itemMeta = itemStack.getItemMeta();
@@ -264,59 +239,36 @@ public class CustomItemManager {
                 return item;
             }
         }
-
         return null;
     }
 
-
-    public ViewType getViewItemByItemStack(ItemStack itemStack) {
-        if (itemStack == null || !itemStack.hasItemMeta()) {
-            return null;
+    public ViewItem getViewItemByItemStack(ItemStack itemStack) {
+        if (itemStack == null || !itemStack.hasItemMeta()) return null;
+        for (ViewItem viewItem : viewItems.values()) {
+            try {
+                if (viewItem.getItemStack().isSimilar(itemStack)) {
+                    return viewItem;
+                }
+            } catch (Exception ignored) {}
         }
-
-        for (ViewType viewItem : viewItems.values()) {
-            if (viewItem.getItemStack().isSimilar(itemStack)) {
-                return viewItem;
-            }
-        }
-
         return null;
     }
 
+    public Map<String, CustomItem> getItems() { return items; }
+    public Map<String, ViewItem> getViewItems() { return viewItems; }
+    public Map<String, EatItem> getEatItems() { return eatItems; }
 
-
-    public Map<String, CustomItem> getItems() {
-        return items;
-    }
-
-    public Map<String, ViewType> getViewItems() {
-        return viewItems;
-    }
-
-    public Map<String, EatItem> getEatItems() {
-        return eatItems;
-    }
-
-    public EatItem getEatItem(String key) {
-        return eatItems.get(key);
-    }
-
-    public CustomItem getItem(String key) {
-        return items.get(key);
-    }
-
-    public ViewType getViewItem(String key) {
-        return viewItems.get(key);
-    }
-
+    public EatItem getEatItem(String key) { return eatItems.get(key); }
+    public CustomItem getItem(String key) { return items.get(key); }
+    public ViewItem getViewItem(String key) { return viewItems.get(key); }
 
     public void reloadItemConfig(){
         try {
             Main.getInstance().getLogger().info("Items.yml reloading!");
             loadItems();
+            Main.getInstance().getLogger().info("Items.yml reloaded");
         } catch (Exception e){
-            Main.getInstance().getLogger().warning("Items.yml reload failed");
+            Main.getInstance().getLogger().warning("Items.yml reload failed: " + e.getMessage());
         }
-        Main.getInstance().getLogger().info("Items.yml reload");
     }
 }

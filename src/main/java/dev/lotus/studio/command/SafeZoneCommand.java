@@ -1,23 +1,28 @@
 package dev.lotus.studio.command;
 
 
+import dev.lotus.studio.safezone.SafeZone;
+import dev.lotus.studio.safezone.SafeZoneManager;
+import net.kyori.adventure.text.Component;
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import dev.lotus.studio.database.savezone.SafeZoneDataBase;
-import dev.lotus.studio.database.savezone.SaveZoneDataService;
 
 import java.util.HashMap;
 import java.util.List;
 
+import static dev.lotus.studio.utils.MapperUtils.formatLocation;
+
 public class SafeZoneCommand {
-    private final SaveZoneDataService service;
+    private SafeZoneManager safeZoneManager = SafeZoneManager.getInstance();
+
 
     private Location pos1 = null;
     private Location pos2 = null;
 
-    public SafeZoneCommand(SaveZoneDataService service) {
-        this.service = service;
+    public SafeZoneCommand() {
     }
 
     public boolean execute(CommandSender sender, String label, String[] args) {
@@ -70,17 +75,26 @@ public class SafeZoneCommand {
     }
 
     private void removeZoneToDB(Player player, int id) {
-        service.getAllSaveZones().forEach(safeZoneDataBase -> {
-            if (safeZoneDataBase.getSafeZoneId() == id){
-                player.sendMessage("Сейв зону удаленно с названием: " + safeZoneDataBase.getSafeZoneName() + " ID: " + safeZoneDataBase.getSafeZoneId());
+        List<SafeZone>  safeZones = safeZoneManager.getAllSafeZones();
+        safeZones.forEach(zone -> {
+            if (zone.getZoneID() == id) {
+                safeZoneManager.removeSafeZone(id);
+                player.sendMessage(Component.text("Safe zone deleted!"));
             }
         });
-        service.removeProtectZone(id);
+
+
+//        service.getAllSaveZones().forEach(safeZoneDataBase -> {
+//            if (safeZoneDataBase.getSafeZoneId() == id){
+//                player.sendMessage("Сейв зону удаленно с названием: " + safeZoneDataBase.getSafeZoneName() + " ID: " + safeZoneDataBase.getSafeZoneId());
+//            }
+//        });
+//        service.removeProtectZone(id);
     }
 
     private void listZoneToDB(Player player) {
         // Отримуємо всі збережені зони з бази даних
-        List<SafeZoneDataBase> safeZoneDataBases = service.getAllSaveZones();
+        List<SafeZone> safeZoneDataBases = safeZoneManager.getAllSafeZones();
 
         // Якщо зон немає, повідомляємо гравця
         if (safeZoneDataBases.isEmpty()) {
@@ -90,7 +104,7 @@ public class SafeZoneCommand {
 
         // Формуємо мапу з імен зон і їх ідентифікаторів
         HashMap<String, Integer> saveId = new HashMap<>();
-        safeZoneDataBases.forEach(saveZoneData -> saveId.put(saveZoneData.getSafeZoneName(), saveZoneData.getSafeZoneId()));
+        safeZoneDataBases.forEach(saveZoneData -> saveId.put(saveZoneData.getZoneName(), saveZoneData.getZoneID()));
 
         // Виводимо гравцю список зон
         player.sendMessage("Список зон:");
@@ -102,18 +116,14 @@ public class SafeZoneCommand {
 
     private void saveZoneToDB(Player player, Location pos1, Location pos2, String zoneName) {
         if (pos1 != null && pos2 != null) {
-            String positionData = formatLocation(pos1) + "|" + formatLocation(pos2);
-            service.saveProtectZone(zoneName, positionData);
+            Pair<Location, Location> zoneLoc = new ImmutablePair<>(pos1, pos2);
+            SafeZone safeZone = new SafeZone(zoneName,zoneLoc);
+            safeZoneManager.addSafeZone(safeZone);
             player.sendMessage("Зона '" + zoneName + "' успішно збережена.");
         } else {
             player.sendMessage("Будь ласка, спочатку встановіть обидві точки (pos1 і pos2).");
         }
     }
 
-    private String formatLocation(Location location) {
-        return location.getBlockX() + "," +
-                location.getBlockY() + "," +
-                location.getBlockZ();
-    }
 
 }

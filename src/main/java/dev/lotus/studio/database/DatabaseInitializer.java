@@ -7,8 +7,8 @@ import dev.lotus.studio.database.playerdata.PlayerDataBase;
 import dev.lotus.studio.database.playerdata.PlayerDataService;
 import dev.lotus.studio.database.playerdata.PlayerDataServiceImpl;
 import dev.lotus.studio.database.savezone.SafeZoneDataBase;
-import dev.lotus.studio.database.savezone.SaveZoneDataService;
-import dev.lotus.studio.database.savezone.SaveZoneDataServiceImpl;
+import dev.lotus.studio.database.savezone.SafeZoneDataService;
+import dev.lotus.studio.database.savezone.SafeZoneDataServiceImpl;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
@@ -25,7 +25,7 @@ public class DatabaseInitializer {
 
     private PlayerDataService playerDataBase;
 
-    private SaveZoneDataService saveZoneDataService;
+    private SafeZoneDataService safeZoneDataService;
 
     public DatabaseInitializer(JavaPlugin plugin) {
         this.plugin = plugin;
@@ -70,16 +70,11 @@ public class DatabaseInitializer {
         try {
             ConnectionSource connectionSource = openConnection();
             this.playerDataBase = new PlayerDataServiceImpl(connectionSource);
-            this.saveZoneDataService = new SaveZoneDataServiceImpl(connectionSource);
+            this.safeZoneDataService = new SafeZoneDataServiceImpl(connectionSource);
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
     }
-
-
-
-
-
 
     /**
      * Повертає ORMLite ConnectionSource
@@ -127,11 +122,12 @@ public class DatabaseInitializer {
     public PlayerDataService getPlayerDataBase() {
         return playerDataBase;
     }
+
     /**
      *  This method
      * @return SaveZoneDataService
      */
-    public SaveZoneDataService getSaveZoneDataService() {
-        return saveZoneDataService;
+    public SafeZoneDataService getSaveZoneDataService() {
+        return safeZoneDataService;
     }
 }

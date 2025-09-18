@@ -7,19 +7,19 @@ import org.bukkit.Location;
 import java.sql.SQLException;
 import java.util.List;
 
-public class SaveZoneDataServiceImpl implements SaveZoneDataService {
+public class SafeZoneDataServiceImpl implements SafeZoneDataService {
 
-    private final SaveZoneDataRepository saveZoneDataRepository;
+    private final SafeZoneDataRepository safeZoneDataRepository;
 
-    public SaveZoneDataServiceImpl(ConnectionSource connectionSource) throws SQLException {
-        this.saveZoneDataRepository = new SaveZoneDataRepository(connectionSource);
+    public SafeZoneDataServiceImpl(ConnectionSource connectionSource) throws SQLException {
+        this.safeZoneDataRepository = new SafeZoneDataRepository(connectionSource);
     }
 
     @Override
     public void saveProtectZone(String name, String location) {
         try {
             SafeZoneDataBase safeZoneDataBase = new SafeZoneDataBase(name, location);
-            saveZoneDataRepository.saveStructureData(safeZoneDataBase);
+            safeZoneDataRepository.saveStructureData(safeZoneDataBase);
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -28,7 +28,7 @@ public class SaveZoneDataServiceImpl implements SaveZoneDataService {
     @Override
     public void removeProtectZone(int id) {
         try {
-            saveZoneDataRepository.removeProtectZone(id);
+            safeZoneDataRepository.removeProtectZone(id);
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -37,7 +37,7 @@ public class SaveZoneDataServiceImpl implements SaveZoneDataService {
     @Override
     public List<SafeZoneDataBase> getAllSaveZones() {
         try {
-            return saveZoneDataRepository.getAllStructuresData();
+            return safeZoneDataRepository.getAllStructuresData();
         } catch (SQLException e) {
             e.printStackTrace();
             return List.of();
@@ -47,7 +47,7 @@ public class SaveZoneDataServiceImpl implements SaveZoneDataService {
     @Override
     public boolean isProtectZone(Location playerLocation) {
         try {
-            List<Pair<Location, Location>> saveZoneDataZones = saveZoneDataRepository.getSaveZoneDataZones();
+            List<Pair<Location, Location>> saveZoneDataZones = safeZoneDataRepository.getSaveZoneDataZones();
             for (Pair<Location, Location> zone : saveZoneDataZones) {
                 if (isLocationInZone(playerLocation, zone.getLeft(), zone.getRight())) {
                     return true;
@@ -62,7 +62,7 @@ public class SaveZoneDataServiceImpl implements SaveZoneDataService {
     @Override
     public List<Pair<Location, Location>> getSaveZones() {
         try {
-            return saveZoneDataRepository.getSaveZoneDataZones();
+            return safeZoneDataRepository.getSaveZoneDataZones();
         } catch (SQLException e) {
             e.printStackTrace();
             return List.of();

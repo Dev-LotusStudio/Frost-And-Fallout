@@ -11,11 +11,11 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SaveZoneDataRepository {
+public class SafeZoneDataRepository {
 
     private final Dao<SafeZoneDataBase, Integer> safeZoneDao;
 
-    public SaveZoneDataRepository(ConnectionSource connectionSource) throws SQLException {
+    public SafeZoneDataRepository(ConnectionSource connectionSource) throws SQLException {
         this.safeZoneDao = DaoManager.createDao(connectionSource, SafeZoneDataBase.class);
     }
 

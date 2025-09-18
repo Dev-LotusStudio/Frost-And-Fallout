@@ -19,10 +19,6 @@ public class SafeZone {
         this.zoneName = zoneName;
     }
 
-    public void setZoneID(int zoneID) {
-        this.zoneID = zoneID;
-    }
-
     public Pair<Location, Location> getLocationPair() {
         return locationPair;
     }

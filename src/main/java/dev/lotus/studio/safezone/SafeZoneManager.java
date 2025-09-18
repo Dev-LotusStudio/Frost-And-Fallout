@@ -6,24 +6,41 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import dev.lotus.studio.Main;
 import dev.lotus.studio.database.savezone.SafeZoneDataBase;
-import dev.lotus.studio.database.savezone.SaveZoneDataService;
+import dev.lotus.studio.database.savezone.SafeZoneDataService;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static dev.lotus.studio.utils.MapperUtils.formatLocation;
 
 public class SafeZoneManager {
 
     private static final SafeZoneManager instance = new SafeZoneManager();
     private final List<SafeZone> safeZones = new ArrayList<>();
     private final Plugin plugin = Main.getInstance();
+
+    private SafeZoneDataService safeZoneDataService;
+
     public static SafeZoneManager getInstance() {
         return instance;
     }
+
 
     // Добавление новой зоны
     public void addSafeZone(SafeZone safeZone) {
         safeZones.add(safeZone);
     }
+
+    public void saveAllSafeZoneToDatabase() {
+        safeZones.forEach(safeZone -> {
+            String positionData = formatLocation(safeZone.getLocationPair().getLeft()) + "|" + formatLocation(safeZone.getLocationPair().getRight());
+            safeZoneDataService.saveProtectZone(safeZone.getZoneName(),positionData);
+        });
+
+    }
+
+
+
 
     // Удаление зоны по ID
     public boolean removeSafeZone(int zoneID) {
@@ -38,16 +55,6 @@ public class SafeZoneManager {
                 .orElse(null);
     }
 
-    // Проверка, находится ли игрок в какой-либо зоне
-    public SafeZone getZoneContainingPlayer(Player player) {
-        Location playerLocation = player.getLocation();
-        return safeZones.stream()
-                .filter(zone -> isLocationInZone(playerLocation,
-                        zone.getLocationPair().getLeft(),
-                        zone.getLocationPair().getRight()))
-                .findFirst()
-                .orElse(null);
-    }
 
     // Проверка, находится ли игрок в какой-либо зоне
     public boolean isPlayerInAnyZone(Player player) {
@@ -58,8 +65,8 @@ public class SafeZoneManager {
                         zone.getLocationPair().getRight()));
     }
 
-    public void initializeZones(SaveZoneDataService saveZoneDataService) {
-        List<SafeZoneDataBase> zonesData = saveZoneDataService.getAllSaveZones();
+    public void initializeZones(SafeZoneDataService safeZoneDataService) {
+        List<SafeZoneDataBase> zonesData = safeZoneDataService.getAllSaveZones();
 
         try {
             for (SafeZoneDataBase data : zonesData) {

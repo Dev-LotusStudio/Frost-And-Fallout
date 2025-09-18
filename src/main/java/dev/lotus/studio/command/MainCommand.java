@@ -4,7 +4,7 @@ import net.kyori.adventure.text.Component;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import dev.lotus.studio.database.savezone.SaveZoneDataService;
+import dev.lotus.studio.database.savezone.SafeZoneDataService;
 import dev.lotus.studio.item.CustomItemManager;
 
 import java.util.ArrayList;
@@ -14,10 +14,10 @@ public class MainCommand extends AbstractCommand {
     private final CustomItemManager itemManager;
     private final SafeZoneCommand saveZoneCommand;
 
-    public MainCommand(String command, CustomItemManager itemManager, SaveZoneDataService saveZoneDataService) {
+    public MainCommand(String command, CustomItemManager itemManager ) {
         super(command);
         this.itemManager = itemManager;
-        this.saveZoneCommand =new SafeZoneCommand(saveZoneDataService);
+        this.saveZoneCommand =new SafeZoneCommand();
     }
 
     @Override

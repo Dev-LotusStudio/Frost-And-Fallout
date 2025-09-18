@@ -5,7 +5,7 @@ import org.bukkit.Location;
 
 import java.util.List;
 
-public interface SaveZoneDataService {
+public interface SafeZoneDataService {
 
     void saveProtectZone(String name, String location);
 

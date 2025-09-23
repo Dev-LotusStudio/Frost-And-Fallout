@@ -18,14 +18,10 @@ import static dev.lotus.studio.utils.MapperUtils.formatLocation;
 
 public class SafeZoneCommand {
     private final SafeZoneManager safeZoneManager = SafeZoneManager.getInstance();
-    private final SafeZoneDataService dataService; // нова система
 
     private Location pos1 = null;
     private Location pos2 = null;
 
-    public SafeZoneCommand(SafeZoneDataService dataService) {
-        this.dataService = dataService;
-    }
 
     public boolean execute(CommandSender sender, String label, String[] args) {
         if (!(sender instanceof Player player)) {
@@ -86,10 +82,6 @@ public class SafeZoneCommand {
             // runtime
             safeZoneManager.addSafeZone(safeZone);
 
-            // database
-            String locationString = formatLocation(pos1) + "|" + formatLocation(pos2);
-            dataService.saveProtectZone(zoneName, locationString);
-
             player.sendMessage("Зона '" + zoneName + "' успішно збережена.");
         } else {
             player.sendMessage("Будь ласка, спочатку встановіть обидві точки (pos1 і pos2).");
@@ -97,7 +89,7 @@ public class SafeZoneCommand {
     }
 
     private void listZones(Player player) {
-        List<SafeZoneDataBase> safeZones = dataService.getAllSaveZones();
+        List<SafeZoneDataBase> safeZones = safeZoneManager.getDataZones();
 
         if (safeZones.isEmpty()) {
             player.sendMessage("немає зон.");
@@ -116,9 +108,6 @@ public class SafeZoneCommand {
     private void removeZone(Player player, int id) {
         // runtime
         safeZoneManager.removeSafeZone(id);
-
-        // database
-        dataService.removeProtectZone(id);
 
         player.sendMessage(Component.text("Safe zone with ID " + id + " deleted!"));
     }

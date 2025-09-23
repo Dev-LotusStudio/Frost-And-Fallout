@@ -14,10 +14,10 @@ public class MainCommand extends AbstractCommand {
     private final CustomItemManager itemManager;
     private final SafeZoneCommand saveZoneCommand;
 
-    public MainCommand(String command, CustomItemManager itemManager , SafeZoneDataService saveZoneDataService) {
+    public MainCommand(String command, CustomItemManager itemManager) {
         super(command);
         this.itemManager = itemManager;
-        this.saveZoneCommand =new SafeZoneCommand(saveZoneDataService);
+        this.saveZoneCommand =new SafeZoneCommand();
     }
 
     @Override

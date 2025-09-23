@@ -10,6 +10,7 @@ import dev.lotus.studio.Main;
 import dev.lotus.studio.database.savezone.SafeZoneDataBase;
 import dev.lotus.studio.database.savezone.SafeZoneDataService;
 
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 public class SafeZoneManager {
@@ -21,11 +22,11 @@ public class SafeZoneManager {
 
     // Кеш із TTL (щоб вивантажувати непотрібні зони)
     private final Cache<Integer, SafeZone> zoneCache = CacheBuilder.newBuilder()
-            .expireAfterAccess(10, TimeUnit.MINUTES) // якщо 10 хв ніхто не юзав — вивантажуємо
+            .expireAfterAccess(10, TimeUnit.SECONDS) // якщо 10 хв ніхто не юзав — вивантажуємо
             .maximumSize(500) // захист від переповнення
             .build();
 
-    private SafeZonePreloader preloader;
+    private SafeZonePreloaded preloader;
 
     public static SafeZoneManager getInstance() {
         return instance;
@@ -33,7 +34,7 @@ public class SafeZoneManager {
 
     public void initialize(SafeZoneDataService safeZoneDataService) {
         this.safeZoneDataService = safeZoneDataService;
-        this.preloader = new SafeZonePreloader(this, safeZoneDataService, plugin);
+        this.preloader = new SafeZonePreloaded(this, safeZoneDataService, plugin);
 
         plugin.getLogger().info("SafeZoneManager ініціалізовано з lazy-загрузкою та кешем.");
     }
@@ -56,14 +57,22 @@ public class SafeZoneManager {
     // Отримання зони з кешу (або БД, якщо немає в кеші)
     public void getZoneById(int zoneID) {
         SafeZone cached = zoneCache.getIfPresent(zoneID);
-        if (cached != null) return;
+        if (cached != null) {
+            return;
+        }
 
         SafeZoneDataBase dbData = safeZoneDataService.getZoneById(zoneID);
         if (dbData != null) {
             SafeZone zone = SafeZoneUtils.fromDatabase(dbData);
             zoneCache.put(zoneID, zone);
+
+            plugin.getLogger().info("[SafeZoneManager] Loaded zone from DB and cached: "
+                    + zone.getZoneName() + " (ID: " + zone.getZoneID() + ")");
+        } else {
+            plugin.getLogger().warning("[SafeZoneManager] Zone " + zoneID + " not found in DB.");
         }
     }
+
 
     // Перевірка чи гравець в якійсь зоні
     public boolean isPlayerInAnyZone(Player player) {
@@ -78,7 +87,12 @@ public class SafeZoneManager {
         return false;
     }
 
-    public SafeZonePreloader getPreloader() {
+    public List<SafeZoneDataBase> getDataZones(){
+        return safeZoneDataService.getAllSaveZones();
+    }
+
+
+    public SafeZonePreloaded getPreloaded() {
         return preloader;
     }
 }

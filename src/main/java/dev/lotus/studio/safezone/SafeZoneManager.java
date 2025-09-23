@@ -22,7 +22,7 @@ public class SafeZoneManager {
 
     // Кеш із TTL (щоб вивантажувати непотрібні зони)
     private final Cache<Integer, SafeZone> zoneCache = CacheBuilder.newBuilder()
-            .expireAfterAccess(10, TimeUnit.SECONDS) // якщо 10 хв ніхто не юзав — вивантажуємо
+            .expireAfterAccess(5, TimeUnit.MINUTES)
             .maximumSize(500) // захист від переповнення
             .build();
 

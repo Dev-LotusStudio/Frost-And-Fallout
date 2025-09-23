@@ -11,6 +11,9 @@ public interface SafeZoneDataService {
 
     void removeProtectZone(int id);
 
+    SafeZoneDataBase getZoneById(int id);
+    List<Integer> getNearbyZoneIds(Location predicted);
+
     List<SafeZoneDataBase> getAllSaveZones();
 
     boolean isProtectZone(Location playerLocation);

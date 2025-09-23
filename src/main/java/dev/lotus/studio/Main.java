@@ -50,16 +50,15 @@ public final class Main extends JavaPlugin {
         new PlayerBar(this,itemManager);
 
 
-        new MainCommand("lotus", itemManager);
+        new MainCommand("lotus", itemManager,safeZoneDataService);
 
-        SafeZoneManager.getInstance().initializeZones(safeZoneDataService);
+        SafeZoneManager.getInstance().initialize(safeZoneDataService);
 
     }
 
     @Override
     public void onDisable() {
        PlayerManager.getInstance().getGlobalTask().cancel();
-       SafeZoneManager.getInstance().saveAllSafeZoneToDatabase();
         // Закриття DataBase
         if (databaseInitializer != null) {
             databaseInitializer.closeConnection();

@@ -14,10 +14,10 @@ public class MainCommand extends AbstractCommand {
     private final CustomItemManager itemManager;
     private final SafeZoneCommand saveZoneCommand;
 
-    public MainCommand(String command, CustomItemManager itemManager ) {
+    public MainCommand(String command, CustomItemManager itemManager , SafeZoneDataService saveZoneDataService) {
         super(command);
         this.itemManager = itemManager;
-        this.saveZoneCommand =new SafeZoneCommand();
+        this.saveZoneCommand =new SafeZoneCommand(saveZoneDataService);
     }
 
     @Override
@@ -286,20 +286,6 @@ public class MainCommand extends AbstractCommand {
     }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     @Override
     public List<String> complete(CommandSender sender, String[] args) {
         List<String> suggestions = new ArrayList<>();
@@ -313,7 +299,7 @@ public class MainCommand extends AbstractCommand {
                 suggestions.addAll(List.of("armor", "view", "eat", "help"));
             }
             else if ("savezone".equals(category)) {
-                suggestions.addAll(List.of("pos1", "pos2", "save","list"));
+                suggestions.addAll(List.of("pos1", "pos2", "save","list","remove"));
             }
         } else if (args.length == 3) {
             String category = args[0].toLowerCase();

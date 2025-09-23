@@ -1,4 +1,4 @@
-name: LotusOffSeasonV2
+name: FrostAndFallout
 version: '1.0-SNAPSHOT'
 main: dev.lotus.studio.Main
 api-version: '1.21'
@@ -7,5 +7,5 @@ commands:
   lotus:
     description: Перезагрузка конфигурации плагина.
     usage: /<command>
-    permission: lotusoffseason.armor
+    permission: frostandfallout.armor
     permission-message: "У вас нет прав для выполнения этой команды."

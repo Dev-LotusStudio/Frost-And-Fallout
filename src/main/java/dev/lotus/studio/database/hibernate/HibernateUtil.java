@@ -23,7 +23,7 @@ public class HibernateUtil {
 
             // Налаштування бази даних
             configuration.setProperty("hibernate.connection.driver_class", "org.sqlite.JDBC");
-            configuration.setProperty("hibernate.connection.url", "jdbc:sqlite:plugins/LotusOffSeasonV2/database.db");
+            configuration.setProperty("hibernate.connection.url", "jdbc:sqlite:plugins/FrostAndFallout/database.db");
             configuration.setProperty("hibernate.dialect", "org.hibernate.community.dialect.SQLiteDialect");
             configuration.setProperty("hibernate.hbm2ddl.auto", "update");
 

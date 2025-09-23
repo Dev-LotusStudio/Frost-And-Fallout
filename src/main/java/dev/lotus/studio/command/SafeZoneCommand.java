@@ -25,7 +25,7 @@ public class SafeZoneCommand {
             sender.sendMessage("only players can execute this command");
             return true;
         }
-        if (!player.hasPermission("lotusOffSeason.savezone")) {
+        if (!player.hasPermission("frostandfallout.savezone")) {
             player.sendMessage("dont have permission");
             return true;
         }

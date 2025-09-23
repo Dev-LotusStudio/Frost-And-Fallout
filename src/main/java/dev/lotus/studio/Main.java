@@ -61,7 +61,7 @@ public final class Main extends JavaPlugin {
         if (HibernateUtil.getSessionFactory() != null) {
             HibernateUtil.getSessionFactory().close();
         }
-        getLogger().info("LotusOffSeason plugin disabled!");
+        getLogger().info("Frost and Fallout plugin disabled!");
         HandlerList.unregisterAll(this);
     }
     public PlayerDataServiceImpl getPlayerDataBase() {

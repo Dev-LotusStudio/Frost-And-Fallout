@@ -1,13 +1,10 @@
 package dev.lotus.studio;
 
-import com.j256.ormlite.support.ConnectionSource;
 import dev.lotus.studio.database.DatabaseInitializer;
 import dev.lotus.studio.database.playerdata.PlayerDataService;
 import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.java.JavaPlugin;
-import dev.lotus.studio.database.playerdata.PlayerDataServiceImpl;
-import dev.lotus.studio.database.savezone.SaveZoneDataService;
-import dev.lotus.studio.database.savezone.SaveZoneDataServiceImpl;
+import dev.lotus.studio.database.savezone.SafeZoneDataService;
 import dev.lotus.studio.event.EatEvent;
 import dev.lotus.studio.event.JoinLeaveEvent;
 import dev.lotus.studio.item.CustomItemManager;
@@ -17,21 +14,14 @@ import dev.lotus.studio.playerdata.PlayerBar;
 import dev.lotus.studio.playerdata.PlayerManager;
 import dev.lotus.studio.safezone.SafeZoneManager;
 
-import java.sql.SQLException;
-
 public final class Main extends JavaPlugin {
 
     private static Main instance;
     private CustomItemManager itemManager;
 
-
-
-
     private PlayerDataService playerDataBase;
-    private SaveZoneDataService saveZoneDataService;
+    private SafeZoneDataService safeZoneDataService;
     private DatabaseInitializer databaseInitializer;
-
-
 
     @Override
     public void onEnable() {
@@ -42,7 +32,7 @@ public final class Main extends JavaPlugin {
         itemManager = new CustomItemManager();
         databaseInitializer = new DatabaseInitializer(this);
         playerDataBase = databaseInitializer.getPlayerDataBase();
-        saveZoneDataService = databaseInitializer.getSaveZoneDataService();
+        safeZoneDataService = databaseInitializer.getSaveZoneDataService();
 
 
 
@@ -55,15 +45,16 @@ public final class Main extends JavaPlugin {
         new PlayerBar(this,itemManager);
 
 
-        new MainCommand("lotus", itemManager,saveZoneDataService);
+        new MainCommand("lotus", itemManager);
 
-        SafeZoneManager.getInstance().initializeZones(saveZoneDataService);
+        SafeZoneManager.getInstance().initialize(safeZoneDataService);
 
     }
 
     @Override
     public void onDisable() {
        PlayerManager.getInstance().getGlobalTask().cancel();
+       SafeZoneManager.getInstance().getPreloaded().stopTask();
         // Закриття DataBase
         if (databaseInitializer != null) {
             databaseInitializer.closeConnection();

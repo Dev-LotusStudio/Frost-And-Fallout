@@ -1,5 +1,7 @@
 package dev.lotus.studio.item.view;
 
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextComponent;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.inventory.ItemStack;
@@ -11,6 +13,8 @@ import java.util.List;
 import java.util.Objects;
 
 public final class StandardViewItem implements ViewItem {
+    private static final NamespacedKey KEY = new NamespacedKey("frostandfallout", "id");
+
     private final String viewType;
     private final Material material;
     private final String displayName;
@@ -39,14 +43,14 @@ public final class StandardViewItem implements ViewItem {
             ItemStack itemStack = new ItemStack(material);
             ItemMeta meta = itemStack.getItemMeta();
             if (meta != null) {
-                if (displayName != null) meta.setDisplayName(displayName);
-                if (!lore.isEmpty()) meta.setLore(lore);
-                NamespacedKey key = new NamespacedKey("frostandfallout", String.valueOf(material).toLowerCase());
-                meta.getPersistentDataContainer().set(
-                        key,
-                        PersistentDataType.STRING,
-                        displayName
-                );
+                if (displayName != null) meta.displayName(Component.text(displayName));
+                if (!lore.isEmpty()) {
+                    List<TextComponent> components = lore.stream()
+                            .map(Component::text)
+                            .toList();
+                    meta.lore(components);
+                }
+                meta.getPersistentDataContainer().set(KEY, PersistentDataType.STRING, String.valueOf(material));
                 itemStack.setItemMeta(meta);
             }
             template = itemStack;

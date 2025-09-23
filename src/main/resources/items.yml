@@ -17,24 +17,20 @@ view_item:
   winter_viewer:
     type: standard # oraxen / nexo
     material: CLOCK
-    displayName: "Счетчик Гейгера"
+    displayName: "Geiger counter"
     view_type: RADIATION # RADIATION / TEMPERATURE
     lore:
-      - "Кажется, эта штука полезная..."
+      - "This thing seems useful..."
 #   oraxenId / nexoId: "viewer_id"
 
 
 items:
   snowy_chestplate:
-    type: standard
-    material: LEATHER_CHESTPLATE
-    displayName: "Снежный нагрудник"
+    type: standard # oraxen / nexo
+    material: LEATHER_CHESTPLATE # Not necessary if you use nexo or oraxen
+    displayName: "Snow chestplate"
     lore:
-      - "Греет грудь"
+      - "Warms the chest"
     temperatureResistance: 1.0
     radiationResistance: 0.5
-  #  oraxen_chestplate:
-  #    type: oraxen
-  #    oraxenId: "oraxen_chestplate_id"
-  #    temperatureResistance: 2.0
-  #    radiationResistance: 1.0
+#   oraxenId / nexoId: "item_id"

@@ -1,7 +1,9 @@
 package dev.lotus.studio.item;
 
+import dev.lotus.studio.item.armor.CustomItemFactory;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.inventory.ItemFlag;
@@ -9,19 +11,19 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataType;
 import dev.lotus.studio.Main;
 import dev.lotus.studio.item.armor.CustomItem;
-import dev.lotus.studio.item.armor.OraxenCustomItem;
-import dev.lotus.studio.item.armor.StandardArmor;
 import dev.lotus.studio.item.eat.EatItem;
 import dev.lotus.studio.item.eat.OraxenEatItem;
 import dev.lotus.studio.item.eat.StandardEatItem;
 import dev.lotus.studio.item.view.ViewItem;
 import dev.lotus.studio.item.view.ViewItemFactory;
 import dev.lotus.studio.utils.ResourcePackUtils;
+import static org.bukkit.Bukkit.getLogger;
 
 import java.io.File;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 public class CustomItemManager {
     private final Map<String, CustomItem> items = new HashMap<>();
@@ -29,13 +31,17 @@ public class CustomItemManager {
     private final Map<String, EatItem> eatItems = new HashMap<>();
 
     private final boolean isOraxenEnabled;
+    private final boolean isNexoEnabled;
 
     public CustomItemManager() {
         this.isOraxenEnabled = ResourcePackUtils.isOraxenEnable();
         if (!isOraxenEnabled) {
             Main.getInstance().getLogger().warning("Oraxen не найден. Предметы из Oraxen будут пропущены.");
         }
-        // Nexo coming soon..
+        this.isNexoEnabled = ResourcePackUtils.isNexoEnable();
+        if (!isNexoEnabled) {
+            Main.getInstance().getLogger().warning("Nexo не найден. Предметы из Nexo будут пропущены.");
+        }
     }
 
     public void loadItems() {
@@ -58,55 +64,28 @@ public class CustomItemManager {
 
     private void loadStandardItems(FileConfiguration config) {
         if (!config.contains("items")) return;
-        var itemsSection = config.getConfigurationSection("items");
+        ConfigurationSection itemsSection = config.getConfigurationSection("items");
         if (itemsSection == null) return;
+
+        CustomItemFactory factory = new CustomItemFactory();
 
         for (String key : itemsSection.getKeys(false)) {
             String path = "items." + key;
-
             try {
-                String type = config.getString(path + ".type");
-                if (type == null) {
-                    throw new IllegalArgumentException("Не указан тип предмета для ключа '" + key + "'");
+                ConfigurationSection itemSection = config.getConfigurationSection(path);
+                if (itemSection == null) {
+                    throw new IllegalArgumentException("Пустая секция для " + path);
                 }
 
-                if ("standard".equalsIgnoreCase(type)) {
-                    String matName = config.getString(path + ".material");
-                    if (matName == null) throw new IllegalArgumentException("Отсутствует material");
-                    Material material = Material.valueOf(matName);
-                    String displayName = config.getString(path + ".displayName");
-                    List<String> lore = config.getStringList(path + ".lore");
-                    double temperatureResistance = config.getDouble(path + ".temperatureResistance");
-                    double radiationResistance = config.getDouble(path + ".radiationResistance");
+                CustomItem item = factory.fromSection(itemSection);
+                items.put(key, item);
+                Main.getInstance().getLogger().info("Загружен item: " + key + " (" + item.getCustomItem() + ")");
 
-                    items.put(key, new StandardArmor(material, displayName, lore, temperatureResistance, radiationResistance));
-                    Main.getInstance().getLogger().info("Успешно загружен стандартный предмет: " + key);
-
-                } else if ("oraxen".equalsIgnoreCase(type)) {
-                    if (!isOraxenEnabled) {
-                        Main.getInstance().getLogger().warning("Oraxen-предмет '" + key + "' пропущен: Oraxen не активен");
-                        continue;
-                    }
-
-                    String oraxenId = config.getString(path + ".oraxenId");
-                    if (oraxenId == null || oraxenId.isEmpty()) {
-                        throw new IllegalArgumentException("Отсутствует 'oraxenId' для предмета '" + key + "'");
-                    }
-                    double temperatureResistance = config.getDouble(path + ".temperatureResistance");
-                    double radiationResistance = config.getDouble(path + ".radiationResistance");
-
-                    items.put(key, new OraxenCustomItem(oraxenId, temperatureResistance, radiationResistance));
-                    Main.getInstance().getLogger().info("Успешно загружен Oraxen-предмет: " + key);
-
-                } else {
-                    throw new IllegalArgumentException("Неизвестный тип предмета '" + type + "' для ключа '" + key + "'");
-                }
-
-            } catch (IllegalArgumentException e) {
-                Main.getInstance().getLogger().warning("Ошибка при загрузке предмета '" + key + "': " + e.getMessage());
-            } catch (Exception e) {
-                Main.getInstance().getLogger().severe("Непредвиденная ошибка при загрузке предмета '" + key + "': " + e.getMessage());
-                e.printStackTrace();
+            } catch (IllegalArgumentException | IllegalStateException e) {
+                Main.getInstance().getLogger().warning("Ошибка при загрузке item '" + key + "': " + e.getMessage());
+            } catch (Throwable t) {
+                Main.getInstance().getLogger().severe("Непредвиденная ошибка при загрузке item '" + key + "': " + t.getMessage());
+                t.printStackTrace();
             }
         }
     }
@@ -209,33 +188,44 @@ public class CustomItemManager {
     public CustomItem getCustomItemByItemStack(ItemStack itemStack) {
         if (itemStack == null || !itemStack.hasItemMeta()) return null;
 
-        NamespacedKey idKey = new NamespacedKey("oraxen", "id");
-        String oraxenId = itemStack.getItemMeta().getPersistentDataContainer().get(idKey, PersistentDataType.STRING);
+        var meta = itemStack.getItemMeta();
 
-        if (oraxenId != null) {
+        NamespacedKey ffKey = new NamespacedKey("frostandfallout", "id");
+        String ffId = meta.getPersistentDataContainer().get(ffKey, PersistentDataType.STRING);
+        if (ffId != null) {
             for (CustomItem item : items.values()) {
-                ItemStack customItemStack = item.getItemStack();
-                if (customItemStack == null || !customItemStack.hasItemMeta()) continue;
-                String itemOraxenId = customItemStack.getItemMeta().getPersistentDataContainer().get(idKey, PersistentDataType.STRING);
-                if (oraxenId.equals(itemOraxenId)) {
+                if (ffId.equals(item.getCustomItem())) {
                     return item;
                 }
             }
+            getLogger().warning("ffId есть, но не нашли совпадение в items\n" + itemStack);
         }
 
-        if (!itemStack.getItemMeta().hasItemFlag(ItemFlag.HIDE_ARMOR_TRIM)) {
+        NamespacedKey oraxenKey = new NamespacedKey("oraxen", "id");
+        String oraxenId = meta.getPersistentDataContainer().get(oraxenKey, PersistentDataType.STRING);
+        if (oraxenId != null) {
+            for (CustomItem item : items.values()) {
+                if (oraxenId.equals(item.getCustomItem())) {
+                    return item;
+                }
+                ItemStack itemItemStack = item.getItemStack();
+                if (itemItemStack.hasItemMeta()) {
+                    String other = itemItemStack.getItemMeta().getPersistentDataContainer().get(oraxenKey, PersistentDataType.STRING);
+                    if (oraxenId.equals(other)) return item;
+                }
+            }
+            getLogger().warning("oraxenId есть, но не нашли совпадение в items\n" + itemStack);
+        }
+
+        if (!meta.hasItemFlag(ItemFlag.HIDE_ARMOR_TRIM)) {
             return null;
         }
-
         for (CustomItem item : items.values()) {
-            ItemStack customItemStack = item.getItemStack();
-            if (customItemStack == null || !customItemStack.hasItemMeta()) continue;
-
-            var customMeta = customItemStack.getItemMeta();
-            var itemMeta = itemStack.getItemMeta();
-
-            if (customMeta.displayName() != null && customMeta.displayName().equals(itemMeta.displayName()) &&
-                    customMeta.lore() != null && customMeta.lore().equals(itemMeta.lore())) {
+            ItemStack custom = item.getItemStack();
+            if (!custom.hasItemMeta()) continue;
+            var itemMeta = custom.getItemMeta();
+            if (itemMeta.displayName() != null && Objects.equals(itemMeta.displayName(), meta.displayName())
+                    && itemMeta.lore() != null && Objects.equals(itemMeta.lore(), meta.lore())) {
                 return item;
             }
         }

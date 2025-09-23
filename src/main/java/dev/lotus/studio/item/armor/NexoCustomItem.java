@@ -1,8 +1,9 @@
 package dev.lotus.studio.item.armor;
 
+import com.nexomc.nexo.api.NexoItems;
+import com.nexomc.nexo.items.ItemBuilder;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
-import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -12,29 +13,27 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 import java.util.Objects;
 
-public final class StandardArmor implements CustomItem {
+public final class NexoCustomItem implements CustomItem {
     private static final NamespacedKey KEY = new NamespacedKey("frostandfallout", "id");
 
     private final String id;
     private final double temperatureResistance;
     private final double radiationResistance;
-    private final Material material;
     private final String displayName;
     private final List<String> lore;
 
     private ItemStack template;
 
-    public StandardArmor(@NotNull Material material,
-                         String displayName,
-                         @NotNull List<String> lore,
-                         double temperatureResistance,
-                         double radiationResistance) {
-        this.material = Objects.requireNonNull(material, "material");
-        this.displayName = displayName;
-        this.lore = List.copyOf(lore);
+    public NexoCustomItem(@NotNull String nexoId,
+                          double temperatureResistance,
+                          double radiationResistance,
+                          String displayName,
+                          @NotNull List<String> lore) {
+        this.id = Objects.requireNonNull(nexoId, "nexoId");
         this.temperatureResistance = temperatureResistance;
         this.radiationResistance = radiationResistance;
-        this.id = material.name();
+        this.displayName = displayName;
+        this.lore = List.copyOf(lore);
     }
 
     @Override public @NotNull String getCustomItem() { return id; }
@@ -44,8 +43,12 @@ public final class StandardArmor implements CustomItem {
     @Override
     public @NotNull ItemStack getItemStack() {
         if (template == null) {
-            ItemStack is = new ItemStack(material);
-            ItemMeta meta = is.getItemMeta();
+            ItemBuilder builder = NexoItems.itemFromId(id);
+            if (builder == null) {
+                throw new IllegalArgumentException("Nexo item '" + id + "' не найден");
+            }
+            ItemStack itemStack = builder.build().clone();
+            ItemMeta meta = itemStack.getItemMeta();
             if (meta != null) {
                 if (displayName != null) meta.displayName(Component.text(displayName));
                 if (!lore.isEmpty()) {
@@ -55,9 +58,9 @@ public final class StandardArmor implements CustomItem {
                     meta.lore(components);
                 }
                 meta.getPersistentDataContainer().set(KEY, PersistentDataType.STRING, id);
-                is.setItemMeta(meta);
+                itemStack.setItemMeta(meta);
             }
-            template = is;
+            template = itemStack;
         }
         return template.clone();
     }

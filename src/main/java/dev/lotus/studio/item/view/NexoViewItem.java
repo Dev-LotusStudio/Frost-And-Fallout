@@ -1,7 +1,9 @@
 package dev.lotus.studio.item.view;
 
+import org.bukkit.NamespacedKey;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.persistence.PersistentDataType;
 import org.jetbrains.annotations.NotNull;
 import com.nexomc.nexo.items.ItemBuilder;
 import com.nexomc.nexo.api.NexoItems;
@@ -39,6 +41,12 @@ public final class NexoViewItem implements ViewItem {
             if (meta != null) {
                 if (displayName != null) meta.setDisplayName(displayName);
                 if (!lore.isEmpty()) meta.setLore(lore);
+                NamespacedKey key = new NamespacedKey("frostandfallout", String.valueOf(id).toLowerCase());
+                meta.getPersistentDataContainer().set(
+                        key,
+                        PersistentDataType.STRING,
+                        displayName
+                );
                 itemStack.setItemMeta(meta);
             }
             template = itemStack;

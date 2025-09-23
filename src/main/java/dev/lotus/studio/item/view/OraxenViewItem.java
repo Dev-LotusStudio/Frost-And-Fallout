@@ -2,8 +2,10 @@ package dev.lotus.studio.item.view;
 
 import io.th0rgal.oraxen.api.OraxenItems;
 import io.th0rgal.oraxen.items.ItemBuilder;
+import org.bukkit.NamespacedKey;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.persistence.PersistentDataType;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -39,6 +41,12 @@ public final class OraxenViewItem implements ViewItem {
             if (meta != null) {
                 if (displayName != null) meta.setDisplayName(displayName);
                 if (!lore.isEmpty())     meta.setLore(lore);
+                NamespacedKey key = new NamespacedKey("frostandfallout", String.valueOf(id).toLowerCase());
+                meta.getPersistentDataContainer().set(
+                        key,
+                        PersistentDataType.STRING,
+                        displayName
+                );
                 itemStack.setItemMeta(meta);
             }
             template = itemStack;

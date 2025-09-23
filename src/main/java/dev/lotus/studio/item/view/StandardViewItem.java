@@ -1,8 +1,10 @@
 package dev.lotus.studio.item.view;
 
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.persistence.PersistentDataType;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -39,6 +41,12 @@ public final class StandardViewItem implements ViewItem {
             if (meta != null) {
                 if (displayName != null) meta.setDisplayName(displayName);
                 if (!lore.isEmpty()) meta.setLore(lore);
+                NamespacedKey key = new NamespacedKey("frostandfallout", String.valueOf(material).toLowerCase());
+                meta.getPersistentDataContainer().set(
+                        key,
+                        PersistentDataType.STRING,
+                        displayName
+                );
                 itemStack.setItemMeta(meta);
             }
             template = itemStack;

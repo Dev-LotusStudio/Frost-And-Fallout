@@ -59,11 +59,11 @@ public class PlayerBar {
         boolean hasTemperatureBar = false;
 
         if (viewItem != null) {
-            String vt = viewItem.getViewType();
-            if ("RADIATION".equalsIgnoreCase(vt)) {
+            String viewType = viewItem.getViewType();
+            if ("RADIATION".equalsIgnoreCase(viewType)) {
                 radiationBar = RadiationHandler.getInstance().createProgressBar(radiation, ICON_RADIATION, true);
                 hasRadiationBar = true;
-            } else if ("TEMPERATURE".equalsIgnoreCase(vt)) {
+            } else if ("TEMPERATURE".equalsIgnoreCase(viewType)) {
                 temperatureBar = TemperatureHandler.getInstance().createProgressBar(temperature, ICON_TEMPERATURE, true);
                 hasTemperatureBar = true;
             }

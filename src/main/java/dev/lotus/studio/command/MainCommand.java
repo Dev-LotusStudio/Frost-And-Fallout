@@ -4,6 +4,7 @@ import dev.lotus.studio.command.subcommand.GenericCommand;
 import dev.lotus.studio.command.subcommand.HelpCommand;
 import dev.lotus.studio.command.subcommand.SubCommand;
 import dev.lotus.studio.command.subcommand.item.factory.ItemSubCommandFactory;
+import dev.lotus.studio.command.subcommand.reload.factory.ReloadSubCommandFactory;
 import dev.lotus.studio.command.subcommand.safezone.factory.SafeZoneSubCommandFactory;
 import dev.lotus.studio.item.CustomItemManager;
 import dev.lotus.studio.safezone.SafeZoneManager;
@@ -15,7 +16,7 @@ import java.util.*;
 public class MainCommand extends AbstractCommand {
     private final Map<String, SubCommand> subCommands = new HashMap<>();
 
-    public MainCommand(String command, CustomItemManager itemManager, SafeZoneManager manager) {
+    public MainCommand(String command, CustomItemManager itemManager, SafeZoneManager safeZoneManager) {
         super(command);
 
         // тут реєструєш усі "верхньорівневі" команди тобто усі реалізації SubCommand
@@ -30,13 +31,17 @@ public class MainCommand extends AbstractCommand {
                 "safezone",
                 "Управление SafeZone зонами",
                 "/main safezone <pos1|pos2|save|list|remove>",
-                SafeZoneSubCommandFactory.createAll(manager)
+                SafeZoneSubCommandFactory.createAll(safeZoneManager)
         ));
+
+        register(new  GenericCommand<>(
+                "reload",
+                "Reload commands",
+                "main",
+                ReloadSubCommandFactory.createAll(safeZoneManager, itemManager)));
 
         register(new HelpCommand());
 
-
-        // register(new ReloadCommand(...));
     }
 
     private void register(SubCommand subCommand) {

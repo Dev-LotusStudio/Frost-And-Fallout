@@ -2,6 +2,7 @@ package dev.lotus.studio;
 
 import dev.lotus.studio.database.DatabaseInitializer;
 import dev.lotus.studio.database.playerdata.PlayerDataService;
+import dev.lotus.studio.safezone.SafeZonePreloaded;
 import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.java.JavaPlugin;
 import dev.lotus.studio.database.savezone.SafeZoneDataService;
@@ -14,6 +15,7 @@ import dev.lotus.studio.playerdata.PlayerBar;
 import dev.lotus.studio.playerdata.PlayerManager;
 import dev.lotus.studio.safezone.SafeZoneManager;
 
+import java.util.Optional;
 import java.util.logging.Level;
 
 public final class Main extends JavaPlugin {
@@ -67,7 +69,9 @@ public final class Main extends JavaPlugin {
     @Override
     public void onDisable() {
        PlayerManager.getInstance().getGlobalTask().cancel();
-       SafeZoneManager.getInstance().getPreloaded().stopTask();
+        Optional.ofNullable(SafeZoneManager.getInstance().getPreloaded())
+                .ifPresent(SafeZonePreloaded::stopTask);
+
         // Закриття DataBase
         if (databaseInitializer != null) {
             databaseInitializer.closeConnection();

@@ -2,6 +2,7 @@ package dev.lotus.studio;
 
 import dev.lotus.studio.database.DatabaseInitializer;
 import dev.lotus.studio.database.playerdata.PlayerDataService;
+import org.bstats.bukkit.Metrics;
 import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.java.JavaPlugin;
 import dev.lotus.studio.database.savezone.SafeZoneDataService;
@@ -25,7 +26,7 @@ public final class Main extends JavaPlugin {
 
     @Override
     public void onEnable() {
-
+        metric();
         instance = this;
         PlayerManager.getInstance().startGlobalTask();
         //cfg
@@ -62,6 +63,12 @@ public final class Main extends JavaPlugin {
         getLogger().info("LotusOffSeason plugin disabled!");
         HandlerList.unregisterAll(this);
     }
+    private void metric(){
+        int pluginId = 27359;
+        Metrics metrics = new Metrics(this, pluginId);
+    }
+
+
     public PlayerDataService getPlayerDataBase() {
         return playerDataBase;
     }

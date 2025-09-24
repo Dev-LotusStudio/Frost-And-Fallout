@@ -1,7 +1,6 @@
 package dev.lotus.studio.command;
 
 import dev.lotus.studio.database.savezone.SafeZoneDataBase;
-import dev.lotus.studio.database.savezone.SafeZoneDataService;
 import dev.lotus.studio.safezone.SafeZone;
 import dev.lotus.studio.safezone.SafeZoneManager;
 import net.kyori.adventure.text.Component;

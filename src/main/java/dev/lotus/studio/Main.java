@@ -14,6 +14,8 @@ import dev.lotus.studio.playerdata.PlayerBar;
 import dev.lotus.studio.playerdata.PlayerManager;
 import dev.lotus.studio.safezone.SafeZoneManager;
 
+import java.util.logging.Level;
+
 public final class Main extends JavaPlugin {
 
     private static Main instance;
@@ -25,30 +27,41 @@ public final class Main extends JavaPlugin {
 
     @Override
     public void onEnable() {
-
-        instance = this;
-        PlayerManager.getInstance().startGlobalTask();
-        //cfg
-        itemManager = new CustomItemManager();
-        databaseInitializer = new DatabaseInitializer(this);
-        playerDataBase = databaseInitializer.getPlayerDataBase();
-        safeZoneDataService = databaseInitializer.getSaveZoneDataService();
+        if (initialize()){
+            getLogger().log(Level.INFO, "Plugin has been enabled!");
+        }
+    }
 
 
+    public boolean initialize() {
+        try {
+            instance = this;
+            PlayerManager.getInstance().startGlobalTask();
+            //cfg
+            itemManager = new CustomItemManager();
+            databaseInitializer = new DatabaseInitializer(this);
+            playerDataBase = databaseInitializer.getPlayerDataBase();
+            safeZoneDataService = databaseInitializer.getSaveZoneDataService();
 
-        itemManager.loadItems();
-        getServer().getPluginManager().registerEvents(new ArmorEvent(itemManager),this);
-        getServer().getPluginManager().registerEvents(new EatEvent(itemManager),this);
-        getServer().getPluginManager().registerEvents(new JoinLeaveEvent(playerDataBase),this);
-        getLogger().info("Предметы загружены из items.yml.");
-
-        new PlayerBar(this,itemManager);
 
 
-        new MainCommand("lotus", itemManager);
+            itemManager.loadItems();
+            getServer().getPluginManager().registerEvents(new ArmorEvent(itemManager),this);
+            getServer().getPluginManager().registerEvents(new EatEvent(itemManager),this);
+            getServer().getPluginManager().registerEvents(new JoinLeaveEvent(playerDataBase),this);
+            getLogger().info("Предметы загружены из items.yml.");
 
-        SafeZoneManager.getInstance().initialize(safeZoneDataService);
+            new PlayerBar(this,itemManager);
 
+
+            new MainCommand("lotus", itemManager, SafeZoneManager.getInstance());
+
+            SafeZoneManager.getInstance().initialize(safeZoneDataService);
+        } catch (Exception e) {
+            getLogger().severe("Exeption Initialize plugin:  " + e.getMessage());
+            return false;
+        }
+        return true;
     }
 
     @Override

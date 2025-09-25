@@ -3,18 +3,16 @@ package dev.lotus.studio.command.subcommand.reload.subcommand;
 import dev.lotus.studio.Main;
 import dev.lotus.studio.command.subcommand.reload.factory.AbstractReloadCommand;
 import dev.lotus.studio.item.CustomItemManager;
-import dev.lotus.studio.safezone.SafeZoneManager;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextColor;
 import org.bukkit.entity.Player;
-import org.enginehub.piston.CommandManager;
 
 import java.util.List;
 import java.util.Optional;
 
 public class AllReloadSub extends AbstractReloadCommand {
-    public AllReloadSub(CustomItemManager itemManager , SafeZoneManager safeZoneManager) {
-        super(itemManager, safeZoneManager);
+    public AllReloadSub(CustomItemManager itemManager) {
+        super(itemManager);
     }
 
     @Override
@@ -22,14 +20,10 @@ public class AllReloadSub extends AbstractReloadCommand {
         return "all";
     }
 
-    @Override
-    public String getDescription() {
-        return "test";
-    }
 
     @Override
     public String getUsage() {
-        return "/main reload all";
+        return "";
     }
 
     @Override
@@ -43,7 +37,7 @@ public class AllReloadSub extends AbstractReloadCommand {
                 System.out.println(e.getMessage());
             }
             return true;
-        } else player.sendMessage(getUsage());
+        } else player.sendMessage(getFullUsage("lotus reload"));
         return true;
     }
 

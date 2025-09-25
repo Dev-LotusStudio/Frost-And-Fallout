@@ -19,27 +19,23 @@ public class ArmorCommand extends AbstractItemSubCommand {
         return "armor";
     }
 
-    @Override
-    public String getDescription() {
-        return "Управление предметами брони";
-    }
 
     @Override
     public String getUsage() {
-        return "/main item armor <give|list|help>";
+        return "<give|list|help>";
     }
 
     @Override
     public boolean execute(Player player, String[] args) {
         if (args.length == 0) {
-            player.sendMessage("§7Использование: " + getUsage());
+            player.sendMessage("§7Использование: " + getFullUsage("lotus item"));
             return true;
         }
 
         switch (args[0].toLowerCase()) {
             case "give" -> {
-                if (args.length < 2) {
-                    player.sendMessage("§7Использование: /main item armor give <itemKey>");
+                if (args.length != 2) {
+                    player.sendMessage("§7Использование: /lotus item armor give <itemKey>");
                     return true;
                 }
                 var customItem = itemManager.getItem(args[1]);
@@ -60,7 +56,7 @@ public class ArmorCommand extends AbstractItemSubCommand {
                 player.sendMessage("/main item armor list");
                 player.sendMessage("/main item armor help");
             }
-            default -> player.sendMessage("§cНеизвестная команда. " + getUsage());
+            default -> player.sendMessage("§cНеизвестная команда. " + getFullUsage("lotus item"));
         }
 
         return true;

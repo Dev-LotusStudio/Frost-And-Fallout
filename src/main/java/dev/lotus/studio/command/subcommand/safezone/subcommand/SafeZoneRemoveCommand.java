@@ -8,10 +8,7 @@ import org.bukkit.entity.Player;
 import java.util.List;
 
 public class SafeZoneRemoveCommand extends AbstractSafeZoneSubCommand {
-    /**
-     * TODO: Зробити по іменні видалення зон
-     * @param manager
-     */
+
     SafeZoneRemoveCommand(SafeZoneManager manager) {
         super(manager);
     }
@@ -21,20 +18,16 @@ public class SafeZoneRemoveCommand extends AbstractSafeZoneSubCommand {
         return "remove";
     }
 
-    @Override
-    public String getDescription() {
-        return "Видаляє SafeZone за вказаним ID";
-    }
 
     @Override
     public String getUsage() {
-        return "/main safezone remove <ID>";
+        return "<ID>";
     }
 
     @Override
     public boolean execute(Player player, String[] args) {
         if (args.length < 1) { // перевіряємо, що після remove є аргумент
-            player.sendMessage("Вкажіть ID зони: " + getUsage());
+            player.sendMessage(getFullUsage("lotus safezone"));
             return true;
         }
 
@@ -45,9 +38,11 @@ public class SafeZoneRemoveCommand extends AbstractSafeZoneSubCommand {
             player.sendMessage("§cНекоректний ID зони!");
             return true;
         }
-
-        manager.removeSafeZone(zoneId);
-        player.sendMessage(Component.text("SafeZone з ID " + zoneId + " видалено!"));
+        if (manager.getZoneById(zoneId)){
+            manager.removeSafeZone(zoneId);
+            player.sendMessage(Component.text("SafeZone з ID " + zoneId + " видалено!"));
+            return true;
+        }
         return true;
     }
 

@@ -8,8 +8,6 @@ public class HelpCommand implements SubCommand {
     @Override
     public String getName() { return "help"; }
 
-    @Override
-    public String getDescription() { return "Показує список доступних команд"; }
 
     @Override
     public String getUsage() { return "/main help"; }

@@ -62,10 +62,10 @@ public class SafeZoneManager {
     }
     // Отримання зони з кешу (або БД, якщо немає в кеші)
 
-    public void getZoneById(int zoneID) {
+    public boolean getZoneById(int zoneID) {
         SafeZone cached = zoneCache.getIfPresent(zoneID);
         if (cached != null) {
-            return;
+            return true;
         }
 
         SafeZoneDataBase dbData = safeZoneDataService.getZoneById(zoneID);
@@ -75,8 +75,10 @@ public class SafeZoneManager {
 
             plugin.getLogger().info("[SafeZoneManager] Loaded zone from DB and cached: "
                     + zone.getZoneName() + " (ID: " + zone.getZoneID() + ")");
+            return true;
         } else {
             plugin.getLogger().warning("[SafeZoneManager] Zone " + zoneID + " not found in DB.");
+            return false;
         }
     }
 

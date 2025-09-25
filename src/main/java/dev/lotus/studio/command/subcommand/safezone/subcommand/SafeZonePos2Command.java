@@ -19,18 +19,18 @@ public class SafeZonePos2Command extends AbstractSafeZoneSubCommand {
         return "pos2";
     }
 
-    @Override
-    public String getDescription() {
-        return "Встановлює другу точку для SafeZone";
-    }
 
     @Override
     public String getUsage() {
-        return "/main safezone pos2";
+        return "";
     }
 
     @Override
     public boolean execute(Player player, String[] args) {
+        if (args.length != 0){
+            player.sendMessage(getFullUsage("lotus safezone"));
+            return true;
+        }
         manager.setTempPos2(player.getUniqueId(), player.getLocation());
         player.sendMessage("Друга точка встановлена: " + formatLocation(player.getLocation()));
         return true;

@@ -21,20 +21,15 @@ public class SafeZoneSaveCommand extends AbstractSafeZoneSubCommand {
     }
 
     @Override
-    public String getDescription() {
-        return "Зберігає SafeZone після встановлення pos1 та pos2";
-    }
-
-    @Override
     public String getUsage() {
-        return "/main safezone save <назва>";
+        return "<name>";
     }
 
     @Override
     public boolean execute(Player player, String[] args) {
         System.out.println(Arrays.toString(args));
         if (args.length < 1) {
-            player.sendMessage("Вкажіть назву зони: " + getUsage());
+            player.sendMessage(getFullUsage("lotus safezone"));
             return true;
         }
 
@@ -48,11 +43,10 @@ public class SafeZoneSaveCommand extends AbstractSafeZoneSubCommand {
             player.sendMessage("Будь ласка, спочатку встановіть обидві точки (pos1 і pos2).");
             return true;
         }
-
         SafeZone safeZone = new SafeZone(zoneName, new ImmutablePair<>(pos1, pos2));
         manager.addSafeZone(safeZone);
-
         player.sendMessage("Зона '" + zoneName + "' успішно збережена.");
+        manager.removeTempPositions(player.getUniqueId());
         return true;
     }
 

@@ -20,18 +20,18 @@ public class SafeZonePos1Command extends AbstractSafeZoneSubCommand {
         return "pos1";
     }
 
-    @Override
-    public String getDescription() {
-        return "Встановлює першу точку зони";
-    }
 
     @Override
     public String getUsage() {
-        return "/main safezone pos1";
+        return "";
     }
 
     @Override
     public boolean execute(Player player, String[] args) {
+        if (args.length != 0){
+            player.sendMessage(getFullUsage("lotus safezone"));
+            return true;
+        }
         Location pos1 = player.getLocation();
         manager.setTempPos1(player.getUniqueId(), pos1); // зберігаємо тимчасово у менеджері
         player.sendMessage("§aПерша точка зони встановлена: " + formatLocation(pos1));

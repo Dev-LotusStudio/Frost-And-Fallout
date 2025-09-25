@@ -1,20 +1,17 @@
 package dev.lotus.studio.command.subcommand.reload.subcommand;
 
+import dev.lotus.studio.Main;
 import dev.lotus.studio.command.subcommand.reload.factory.AbstractReloadCommand;
 import dev.lotus.studio.item.CustomItemManager;
-import dev.lotus.studio.safezone.SafeZoneManager;
 import org.bukkit.entity.Player;
 
 import java.util.List;
+import java.util.logging.Level;
 
 public class ItemReloadSub extends AbstractReloadCommand {
-    /**
-     * TODO: Прибрати @param safeZoneManager повныстю з архітектури релоаду!
-     * @param itemManager
-     * @param safeZoneManager
-     */
-    public ItemReloadSub(CustomItemManager itemManager , SafeZoneManager safeZoneManager) {
-        super(itemManager, safeZoneManager);
+
+    public ItemReloadSub(CustomItemManager itemManager) {
+        super(itemManager);
     }
 
     @Override
@@ -22,14 +19,10 @@ public class ItemReloadSub extends AbstractReloadCommand {
         return "item";
     }
 
-    @Override
-    public String getDescription() {
-        return "items reload";
-    }
 
     @Override
     public String getUsage() {
-        return "reload all items";
+        return "";
     }
 
     @Override
@@ -37,9 +30,11 @@ public class ItemReloadSub extends AbstractReloadCommand {
         if (args.length == 0){
             try {
                 itemManager.reloadItemConfig();
-            } catch (Exception ignored){
-
+            } catch (Exception e){
+                Main.getInstance().getLogger().log(Level.WARNING, "Failed to reload item config:" + e.getMessage());
             }
+        } else {
+            player.sendMessage(getFullUsage("lotus reload"));
         }
         return false;
     }

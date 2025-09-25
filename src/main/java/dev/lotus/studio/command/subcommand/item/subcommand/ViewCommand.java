@@ -19,27 +19,23 @@ public class ViewCommand extends AbstractItemSubCommand {
         return "view";
     }
 
-    @Override
-    public String getDescription() {
-        return "Управление view предметами";
-    }
 
     @Override
     public String getUsage() {
-        return "/main item view <give|list|help>";
+        return "<give|list|help>";
     }
 
     @Override
     public boolean execute(Player player, String[] args) {
         if (args.length == 0) {
-            player.sendMessage("§7Использование: " + getUsage());
+            player.sendMessage("§7Использование: " + getFullUsage("lotus item"));
             return true;
         }
 
         switch (args[0].toLowerCase()) {
             case "give" -> {
-                if (args.length < 2) {
-                    player.sendMessage("§7Использование: /main item view give <itemKey>");
+                if (args.length != 2) {
+                    player.sendMessage("§7Использование: /lotus item view give <itemKey>");
                     return true;
                 }
                 var viewItem = itemManager.getViewItem(args[1]);
@@ -64,7 +60,7 @@ public class ViewCommand extends AbstractItemSubCommand {
                 player.sendMessage("/main item view list");
                 player.sendMessage("/main item view help");
             }
-            default -> player.sendMessage("§cНеизвестная команда. " + getUsage());
+            default -> player.sendMessage("§cНеизвестная команда. " + getFullUsage("lotus item"));
         }
 
         return true;

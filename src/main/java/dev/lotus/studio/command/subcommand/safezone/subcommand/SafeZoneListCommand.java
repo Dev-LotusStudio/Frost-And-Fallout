@@ -18,18 +18,19 @@ public class SafeZoneListCommand extends AbstractSafeZoneSubCommand {
         return "list";
     }
 
-    @Override
-    public String getDescription() {
-        return "Список усіх збережених зон";
-    }
 
     @Override
     public String getUsage() {
-        return "/main safezone list";
+        return "";
     }
 
     @Override
     public boolean execute(Player player, String[] args) {
+        if (args.length != 0){
+            player.sendMessage(getFullUsage("lotus safezone"));
+            return true;
+        }
+
         List<SafeZoneDataBase> safeZones = manager.getDataZones();
 
         if (safeZones.isEmpty()) {
@@ -47,7 +48,6 @@ public class SafeZoneListCommand extends AbstractSafeZoneSubCommand {
 
     @Override
     public List<String> tabComplete(Player player, String[] args) {
-        // Для списку зон автозаповнення не потрібне
         return List.of();
     }
 }

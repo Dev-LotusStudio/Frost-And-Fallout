@@ -22,23 +22,20 @@ public class MainCommand extends AbstractCommand {
         // тут реєструєш усі "верхньорівневі" команди тобто усі реалізації SubCommand
         register(new GenericCommand<>(
                 "item",
-                "Управление предметами",
                 "/main item <armor|view|eat>",
                 ItemSubCommandFactory.createAll(itemManager)
         ));
 
         register(new GenericCommand<>(
                 "safezone",
-                "Управление SafeZone зонами",
                 "/main safezone <pos1|pos2|save|list|remove>",
                 SafeZoneSubCommandFactory.createAll(safeZoneManager)
         ));
 
         register(new  GenericCommand<>(
                 "reload",
-                "Reload commands",
                 "main",
-                ReloadSubCommandFactory.createAll(safeZoneManager, itemManager)));
+                ReloadSubCommandFactory.createAll(itemManager)));
 
         register(new HelpCommand());
 

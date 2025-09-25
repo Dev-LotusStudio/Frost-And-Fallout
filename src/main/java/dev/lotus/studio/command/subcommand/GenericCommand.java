@@ -11,13 +11,11 @@ import java.util.stream.Collectors;
 public class GenericCommand<T extends SubCommand> implements SubCommand {
 
     private final String name;
-    private final String description;
     private final String usage;
     private final Collection<T> subCommands;
 
-    public GenericCommand(String name, String description, String usage, Collection<T> subCommands) {
+    public GenericCommand(String name, String usage, Collection<T> subCommands) {
         this.name = name;
-        this.description = description;
         this.usage = usage;
         this.subCommands = subCommands;
     }
@@ -25,11 +23,24 @@ public class GenericCommand<T extends SubCommand> implements SubCommand {
     @Override
     public String getName() { return name; }
 
-    @Override
-    public String getDescription() { return description; }
 
     @Override
-    public String getUsage() { return usage; }
+    public String getUsage() {
+        String children = subCommands.stream()
+                .map(SubCommand::getName)
+                .reduce((a, b) -> a + "|" + b)
+                .orElse("");
+        return "/" + name + " <" + children + ">";
+    }
+
+    public String getFullUsage(String parentChain) {
+        String full = (parentChain == null || parentChain.isEmpty())
+                ? name
+                : parentChain + " " + name;
+
+        return "/" + full + " ..."; // для опису групи
+    }
+
 
     @Override
     public boolean execute(Player player, String[] args) {

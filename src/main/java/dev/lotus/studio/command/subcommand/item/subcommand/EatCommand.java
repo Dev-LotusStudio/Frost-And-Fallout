@@ -19,27 +19,23 @@ public class EatCommand extends AbstractItemSubCommand {
         return "eat";
     }
 
-    @Override
-    public String getDescription() {
-        return "Управление съедобными предметами";
-    }
 
     @Override
     public String getUsage() {
-        return "/main item eat <give|list|help>";
+        return "<give|list|help>";
     }
 
     @Override
     public boolean execute(Player player, String[] args) {
         if (args.length == 0) {
-            player.sendMessage("§7Использование: " + getUsage());
+            player.sendMessage("§7Использование: " + getFullUsage("lotus item"));
             return true;
         }
 
         switch (args[0].toLowerCase()) {
             case "give" -> {
-                if (args.length < 2) {
-                    player.sendMessage("§7Использование: /main item eat give <itemKey>");
+                if (args.length != 2) {
+                    player.sendMessage("§7Использование: /lotus item eat give <itemKey>");
                     return true;
                 }
                 var eatItem = itemManager.getEatItem(args[1]);
@@ -64,7 +60,7 @@ public class EatCommand extends AbstractItemSubCommand {
                 player.sendMessage("/main item eat list");
                 player.sendMessage("/main item eat help");
             }
-            default -> player.sendMessage("§cНеизвестная команда. " + getUsage());
+            default -> player.sendMessage("§cНеизвестная команда. " + getFullUsage("lotus item"));
         }
 
         return true;

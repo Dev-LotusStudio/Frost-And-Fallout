@@ -19,14 +19,14 @@ public interface SubCommand {
                 .append(Component.text("Correct: ", NamedTextColor.GRAY));
 
         if (parentChain == null || parentChain.isEmpty()) {
-            return base.append(Component.text("/")
+            return base.append(Component.text("/", NamedTextColor.AQUA)
                     .append(Component.text(getName(), NamedTextColor.AQUA))
                     .append(Component.space())
                     .append(Component.text(getUsage(), NamedTextColor.GRAY))
             );
         }
 
-        return base.append(Component.text("/")
+        return base.append(Component.text("/", NamedTextColor.AQUA)
                 .append(Component.text(parentChain + " " + getName(), NamedTextColor.AQUA))
                 .append(getUsage().isEmpty()
                         ? Component.empty()

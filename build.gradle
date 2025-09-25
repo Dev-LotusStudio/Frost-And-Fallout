@@ -31,9 +31,10 @@ dependencies {
     compileOnly("io.papermc.paper:paper-api:1.21.1-R0.1-SNAPSHOT")
     compileOnly 'io.th0rgal:oraxen:1.184.1'
     compileOnly("com.sk89q.worldedit:worldedit-bukkit:7.2.15")
-    implementation("com.google.guava:guava:10.0.1")
+    implementation('com.google.guava:guava:32.0.1-android')
     implementation("org.xerial:sqlite-jdbc:3.50.3.0")
     implementation("com.j256.ormlite:ormlite-jdbc:6.1")
+    implementation 'org.bstats:bstats-bukkit:3.0.0'
 }
 
 java {

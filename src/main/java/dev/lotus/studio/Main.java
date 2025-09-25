@@ -2,6 +2,7 @@ package dev.lotus.studio;
 
 import dev.lotus.studio.database.DatabaseInitializer;
 import dev.lotus.studio.database.playerdata.PlayerDataService;
+import dev.lotus.studio.safezone.SafeZonePreloaded;
 import org.bstats.bukkit.Metrics;
 import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.java.JavaPlugin;

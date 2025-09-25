@@ -8,8 +8,26 @@ libraries:
   - com.j256.ormlite:ormlite-jdbc:6.1
   - com.google.guava:guava:32.0.1-android
 commands:
-  lotus:
+  frostandfallout:
     description: Перезагрузка конфигурации плагина.
     usage: /<command>
-    permission: lotusoffseason.armor
+    permission: frostandfallout.use
     permission-message: "У вас нет прав для выполнения этой команды."
+    aliases: [faf]
+
+permissions:
+  frostandfallout.use:
+    description: Дозволяє користуватись командою /lotus
+    default: true
+
+  frostandfallout.item:
+    description: Дозволяє доступ до підкоманди item
+    default: op
+
+  frostandfallout.safezone:
+    description: Дозволяє доступ до підкоманди safezone
+    default: op
+
+  frostandfallout.reload:
+    description: Дозволяє виконувати reload
+    default: op

@@ -58,7 +58,7 @@ public final class Main extends JavaPlugin {
             new PlayerBar(this,itemManager);
 
 
-            new MainCommand("lotus", itemManager, SafeZoneManager.getInstance());
+            new MainCommand("frostandfallout", itemManager, SafeZoneManager.getInstance());
 
             SafeZoneManager.getInstance().initialize(safeZoneDataService);
         } catch (Exception e) {

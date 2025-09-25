@@ -22,14 +22,14 @@ public class SafeZoneSaveCommand extends AbstractSafeZoneSubCommand {
 
     @Override
     public String getUsage() {
-        return "<name>";
+        return "[name]";
     }
 
     @Override
-    public boolean execute(Player player, String[] args) {
+    public boolean perform(Player player, String[] args) {
         System.out.println(Arrays.toString(args));
         if (args.length < 1) {
-            player.sendMessage(getFullUsage("lotus safezone"));
+            player.sendMessage(getFullUsage("faf safezone"));
             return true;
         }
 

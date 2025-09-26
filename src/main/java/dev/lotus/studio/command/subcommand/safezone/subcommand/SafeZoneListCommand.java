@@ -1,0 +1,53 @@
+package dev.lotus.studio.command.subcommand.safezone.subcommand;
+
+import dev.lotus.studio.command.subcommand.safezone.factory.AbstractSafeZoneSubCommand;
+import dev.lotus.studio.database.savezone.SafeZoneDataBase;
+import dev.lotus.studio.safezone.SafeZoneManager;
+import org.bukkit.entity.Player;
+
+import java.util.List;
+
+public class SafeZoneListCommand extends AbstractSafeZoneSubCommand {
+
+    SafeZoneListCommand(SafeZoneManager manager) {
+        super(manager);
+    }
+
+    @Override
+    public String getName() {
+        return "list";
+    }
+
+
+    @Override
+    public String getUsage() {
+        return "";
+    }
+
+    @Override
+    public boolean execute(Player player, String[] args) {
+        if (args.length != 0){
+            player.sendMessage(getFullUsage("lotus safezone"));
+            return true;
+        }
+
+        List<SafeZoneDataBase> safeZones = manager.getDataZones();
+
+        if (safeZones.isEmpty()) {
+            player.sendMessage("§cНемає збережених зон.");
+            return true;
+        }
+
+        player.sendMessage("§aСписок зон:");
+        for (SafeZoneDataBase zone : safeZones) {
+            player.sendMessage(" - Назва: " + zone.getSafeZoneName() + ", ID: " + zone.getSafeZoneId());
+        }
+
+        return true;
+    }
+
+    @Override
+    public List<String> tabComplete(Player player, String[] args) {
+        return List.of();
+    }
+}

@@ -74,21 +74,18 @@ jobs:
       - name: Determine Version
         id: bump_version
         run: |
-          set -e
+          set -euo pipefail
           BRANCH_NAME=${GITHUB_REF##*/}
           echo "Branch: $BRANCH_NAME"
 
           if [ "$BRANCH_NAME" == "release" ]; then
-            # беремо тільки стабільні теги vX.Y.Z
-            LAST_TAG=$(git tag --list "v[0-9]*.[0-9]*.[0-9]*" --sort=-creatordate | tail -n1)
+            LAST_TAG=$(git tag --list "v[0-9]*.[0-9]*.[0-9]*" --sort=-v:refname | head -n1 || true)
           else
-            # беремо тільки dev/pre-release теги
-            LAST_TAG=$(git tag --list "v*-dev.*" --sort=-creatordate | tail -n1)
+            LAST_TAG=$(git tag --list "v*-dev.*" --sort=-v:refname | head -n1 || true)
           fi
 
           echo "Last tag: $LAST_TAG"
 
-          # Розбираємо версію
           if [ -n "$LAST_TAG" ]; then
             BASE_VERSION=$(echo "$LAST_TAG" | sed 's/^v//' | sed 's/-dev.*//')
             MAJOR=$(echo "$BASE_VERSION" | cut -d. -f1)
@@ -99,7 +96,7 @@ jobs:
           fi
           echo "Parsed version: $MAJOR.$MINOR.$PATCH"
 
-          # Беремо коміти після тегу
+          # Коміти після останнього тега (або всі, якщо ще немає тегів)
           if [ -n "$LAST_TAG" ]; then
             COMMITS=$(git log "$LAST_TAG"..HEAD --pretty=format:"%s")
           else
@@ -108,14 +105,13 @@ jobs:
 
           # Визначаємо bump
           BUMP="patch"
-          if echo "$COMMITS" | grep -qE "^BREAKING CHANGE:"; then
+          if echo "$COMMITS" | grep -q "BREAKING CHANGE:"; then
             BUMP="major"
-          elif echo "$COMMITS" | grep -qE "^feat:"; then
+          elif echo "$COMMITS" | grep -qE '^feat(\(|:)' ; then
             BUMP="minor"
           fi
           echo "Determined bump type: $BUMP"
 
-          # Збільшуємо версію
           case $BUMP in
             major)
               MAJOR=$((MAJOR+1))
@@ -131,31 +127,23 @@ jobs:
               ;;
           esac
 
-          # ⚠️ Overflow патча на мінор
-          PATCH_MAX=10
-          if [ "$PATCH" -ge "$PATCH_MAX" ]; then
-            PATCH=0
-            MINOR=$((MINOR+1))
-          fi
-
-          # ⚠️ Overflow мінору на мейджор
-          MINOR_MAX=10
-          if [ "$MINOR" -ge "$MINOR_MAX" ]; then
-            MINOR=0
-            MAJOR=$((MAJOR+1))
-          fi
-
           NEW_VERSION="$MAJOR.$MINOR.$PATCH"
 
-          # Для dev додаємо pre-release лічильник
+          # Для dev додаємо dev.N, де N = останній номер + 1
           if [ "$BRANCH_NAME" == "dev" ]; then
-            COUNT=$(git tag --list "v${NEW_VERSION}-dev.*" | wc -l | xargs)
-            COUNT=${COUNT:-0}
-            NEW_VERSION="${NEW_VERSION}-dev.$((COUNT+1))"
+            LAST_DEV_TAG=$(git tag --list "v${NEW_VERSION}-dev.*" --sort=-v:refname | head -n1 || true)
+            if [ -n "$LAST_DEV_TAG" ]; then
+              LAST_DEV_NUM=$(echo "$LAST_DEV_TAG" | sed -E 's/^v[0-9]+\.[0-9]+\.[0-9]+-dev\.([0-9]+)$/\1/')
+              NEXT_DEV_NUM=$((LAST_DEV_NUM+1))
+            else
+              NEXT_DEV_NUM=1
+            fi
+            NEW_VERSION="${NEW_VERSION}-dev.${NEXT_DEV_NUM}"
           fi
 
           echo "New version: $NEW_VERSION"
           echo "new=$NEW_VERSION" >> $GITHUB_OUTPUT
+
       
 
       - name: Grant execute permission for gradlew

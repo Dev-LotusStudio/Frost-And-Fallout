@@ -1,22 +1,17 @@
 eat_item:
   testeat:
-    type: standard
-    material: APPLE
-    displayName: "Счетчик Гейгера"
+    type: standard # oraxen / nexo
+    material: APPLE # Not necessary if you use nexo or oraxen
+    displayName: "Warm apple"
     foodValue:
       radiation: 0
       temperature: 10
-    #  oraxen_viewer:
-    #    type: oraxen
-    #    oraxenId: "oraxen_viewer_id"
-    #     foodValue:
-    #      radiation: 0
-    #      temperature: 10
+#   oraxenId / nexoId: "viewer_id"
 
 view_item:
   winter_viewer:
     type: standard # oraxen / nexo
-    material: CLOCK
+    material: CLOCK # Not necessary if you use nexo or oraxen
     displayName: "Geiger counter"
     view_type: RADIATION # RADIATION / TEMPERATURE
     lore:

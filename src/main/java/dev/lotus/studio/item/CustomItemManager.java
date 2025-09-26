@@ -1,7 +1,7 @@
 package dev.lotus.studio.item;
 
 import dev.lotus.studio.item.armor.CustomItemFactory;
-import org.bukkit.Material;
+import dev.lotus.studio.item.eat.*;
 import org.bukkit.NamespacedKey;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -11,19 +11,13 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataType;
 import dev.lotus.studio.Main;
 import dev.lotus.studio.item.armor.CustomItem;
-import dev.lotus.studio.item.eat.EatItem;
-import dev.lotus.studio.item.eat.OraxenEatItem;
-import dev.lotus.studio.item.eat.StandardEatItem;
 import dev.lotus.studio.item.view.ViewItem;
 import dev.lotus.studio.item.view.ViewItemFactory;
 import dev.lotus.studio.utils.ResourcePackUtils;
 import static org.bukkit.Bukkit.getLogger;
 
 import java.io.File;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 public class CustomItemManager {
     private final Map<String, CustomItem> items = new HashMap<>();
@@ -124,53 +118,36 @@ public class CustomItemManager {
         var section = config.getConfigurationSection("eat_item");
         if (section == null) return;
 
+        EatItemFactory factory = new EatItemFactory();
+
         for (String key : section.getKeys(false)) {
             String path = "eat_item." + key;
-
             try {
-                String type = config.getString(path + ".type");
-                if (type == null) {
-                    throw new IllegalArgumentException("Не указан тип предмета для eat_item '" + key + "'");
+                var itemSection = config.getConfigurationSection(path);
+                if (itemSection == null) {
+                    throw new IllegalArgumentException("Пустая секция для " + path);
                 }
 
-                if ("standard".equalsIgnoreCase(type)) {
-                    String matName = config.getString(path + ".material");
-                    if (matName == null) throw new IllegalArgumentException("Отсутствует material");
-                    Material material = Material.valueOf(matName);
-                    String displayName = config.getString(path + ".displayName");
-                    List<String> lore = config.getStringList(path + ".lore");
-                    int radiationValue = config.getInt(path + ".foodValue.radiation");
-                    int temperatureValue = config.getInt(path + ".foodValue.temperature");
-
-                    eatItems.put(key, new StandardEatItem(material, displayName, lore, radiationValue, temperatureValue));
-                    Main.getInstance().getLogger().info("Успешно загружен стандартный eat_item: " + key);
-
-                } else if ("oraxen".equalsIgnoreCase(type)) {
-                    if (!isOraxenEnabled) {
-                        Main.getInstance().getLogger().warning("Oraxen eat_item '" + key + "' пропущен: Oraxen не активен");
-                        continue;
-                    }
-
-                    String oraxenId = config.getString(path + ".oraxenId");
-                    if (oraxenId == null || oraxenId.isEmpty()) {
-                        throw new IllegalArgumentException("Отсутствует 'oraxenId' для eat_item '" + key + "'");
-                    }
-
-                    int radiationValue = config.getInt(path + ".foodValue.radiation");
-                    int temperatureValue = config.getInt(path + ".foodValue.temperature");
-
-                    eatItems.put(key, new OraxenEatItem(oraxenId, radiationValue, temperatureValue));
-                    Main.getInstance().getLogger().info("Успешно загружен Oraxen eat_item: " + key);
-
-                } else {
-                    throw new IllegalArgumentException("Неизвестный тип eat_item '" + type + "' для ключа '" + key + "'");
+                String providerStr = itemSection.getString("provider", itemSection.getString("type", "standard"));
+                String providerDbg = providerStr.toLowerCase(Locale.ROOT);
+                if ("oraxen".equals(providerDbg) && !isOraxenEnabled) {
+                    Main.getInstance().getLogger().warning("Oraxen eat_item '" + key + "' пропущен: Oraxen не активен");
+                    continue;
+                }
+                if ("nexo".equals(providerDbg) && !isNexoEnabled) {
+                    Main.getInstance().getLogger().warning("Nexo eat_item '" + key + "' пропущен: Nexo не активен");
+                    continue;
                 }
 
-            } catch (IllegalArgumentException e) {
+                EatItem eatItem = factory.fromSection(itemSection);
+                eatItems.put(key, eatItem);
+                Main.getInstance().getLogger().info("Загружен eat_item: " + key + " (src=" + eatItem.getEatItem() + ")");
+
+            } catch (IllegalArgumentException | IllegalStateException e) {
                 Main.getInstance().getLogger().warning("Ошибка при загрузке eat_item '" + key + "': " + e.getMessage());
-            } catch (Exception e) {
-                Main.getInstance().getLogger().severe("Непредвиденная ошибка при загрузке eat_item '" + key + "': " + e.getMessage());
-                e.printStackTrace();
+            } catch (Throwable t) {
+                Main.getInstance().getLogger().severe("Непредвиденная ошибка при загрузке eat_item '" + key + "': " + t.getMessage());
+                t.printStackTrace();
             }
         }
     }

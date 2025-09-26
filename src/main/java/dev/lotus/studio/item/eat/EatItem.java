@@ -1,24 +1,11 @@
 package dev.lotus.studio.item.eat;
 
 import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.NotNull;
 
-public abstract class EatItem {
-
-    private final double radiationValue;
-    private final double temperatureValue;
-
-    public EatItem(double radiationValue, double temperatureValue) {
-        this.radiationValue = radiationValue;
-        this.temperatureValue = temperatureValue;
-    }
-
-    public double getRadiationValue() {
-        return radiationValue;
-    }
-
-    public double getTemperatureValue() {
-        return temperatureValue;
-    }
-
-    public abstract ItemStack getItemStack();
+public interface EatItem {
+    @NotNull String getEatItem();
+    @NotNull ItemStack getItemStack();
+    int getRadiationValue();
+    int getTemperatureValue();
 }

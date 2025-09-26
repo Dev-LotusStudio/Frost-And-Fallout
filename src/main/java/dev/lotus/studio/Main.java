@@ -82,7 +82,7 @@ public final class Main extends JavaPlugin {
         HandlerList.unregisterAll(this);
     }
     private void metric(){
-        int pluginId = 27359;
+        int pluginId = 27372;
         Metrics metrics = new Metrics(this, pluginId);
     }
 

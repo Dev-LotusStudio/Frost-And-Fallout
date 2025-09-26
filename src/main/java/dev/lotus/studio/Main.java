@@ -1,15 +1,15 @@
 package dev.lotus.studio;
 
+import dev.lotus.studio.database.DatabaseInitializer;
+import dev.lotus.studio.database.playerdata.PlayerDataService;
+import org.bstats.bukkit.Metrics;
 import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.java.JavaPlugin;
-import dev.lotus.studio.database.hibernate.playerdata.PlayerDataServiceImpl;
-import dev.lotus.studio.database.hibernate.savezone.SaveZoneDataService;
-import dev.lotus.studio.database.hibernate.savezone.SaveZoneDataServiceImpl;
+import dev.lotus.studio.database.savezone.SafeZoneDataService;
 import dev.lotus.studio.event.EatEvent;
 import dev.lotus.studio.event.JoinLeaveEvent;
 import dev.lotus.studio.item.CustomItemManager;
 import dev.lotus.studio.command.MainCommand;
-import dev.lotus.studio.database.hibernate.HibernateUtil;
 import dev.lotus.studio.event.ArmorEvent;
 import dev.lotus.studio.playerdata.PlayerBar;
 import dev.lotus.studio.playerdata.PlayerManager;
@@ -20,24 +20,22 @@ public final class Main extends JavaPlugin {
     private static Main instance;
     private CustomItemManager itemManager;
 
-
-
-
-    private PlayerDataServiceImpl playerDataBase;
-    private SaveZoneDataService saveZoneDataService;
-
-
-
+    private PlayerDataService playerDataBase;
+    private SafeZoneDataService safeZoneDataService;
+    private DatabaseInitializer databaseInitializer;
 
     @Override
     public void onEnable() {
-
+        metric();
         instance = this;
         PlayerManager.getInstance().startGlobalTask();
         //cfg
         itemManager = new CustomItemManager();
-        this.playerDataBase = new PlayerDataServiceImpl();
-        this.saveZoneDataService = new SaveZoneDataServiceImpl();
+        databaseInitializer = new DatabaseInitializer(this);
+        playerDataBase = databaseInitializer.getPlayerDataBase();
+        safeZoneDataService = databaseInitializer.getSaveZoneDataService();
+
+
 
         itemManager.loadItems();
         getServer().getPluginManager().registerEvents(new ArmorEvent(itemManager),this);
@@ -48,23 +46,30 @@ public final class Main extends JavaPlugin {
         new PlayerBar(this,itemManager);
 
 
-        new MainCommand("lotus", itemManager,saveZoneDataService);
+        new MainCommand("lotus", itemManager);
 
-        SafeZoneManager.getInstance().initializeZones(saveZoneDataService);
+        SafeZoneManager.getInstance().initialize(safeZoneDataService);
 
     }
 
     @Override
     public void onDisable() {
        PlayerManager.getInstance().getGlobalTask().cancel();
-        // Закриття SessionFactory Hibernate при вимкненні плагіна
-        if (HibernateUtil.getSessionFactory() != null) {
-            HibernateUtil.getSessionFactory().close();
+       SafeZoneManager.getInstance().getPreloaded().stopTask();
+        // Закриття DataBase
+        if (databaseInitializer != null) {
+            databaseInitializer.closeConnection();
         }
         getLogger().info("Frost and Fallout plugin disabled!");
         HandlerList.unregisterAll(this);
     }
-    public PlayerDataServiceImpl getPlayerDataBase() {
+    private void metric(){
+        int pluginId = 27359;
+        Metrics metrics = new Metrics(this, pluginId);
+    }
+
+
+    public PlayerDataService getPlayerDataBase() {
         return playerDataBase;
     }
 

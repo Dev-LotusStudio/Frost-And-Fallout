@@ -83,7 +83,7 @@ public class TemperatureHandler {
         }
 
         new_value = new_value + speed;
-        new_value = Math.clamp(new_value, MIN_TEMPERATURE, MAX_TEMPERATURE);
+        new_value = Math.floor(Math.clamp(new_value, MIN_TEMPERATURE, MAX_TEMPERATURE) * 100) / 100.0;
         return new_value;
     }
 

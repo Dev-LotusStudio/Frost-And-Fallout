@@ -15,12 +15,15 @@ public class SafeZone {
 
     }
 
-    public void setZoneName(String zoneName) {
+    public SafeZone(int id, String zoneName, Pair<Location, Location> locationPair) {
+        this.zoneID = id;
         this.zoneName = zoneName;
+        this.locationPair = locationPair;
+
     }
 
-    public void setZoneID(int zoneID) {
-        this.zoneID = zoneID;
+    public void setZoneName(String zoneName) {
+        this.zoneName = zoneName;
     }
 
     public Pair<Location, Location> getLocationPair() {

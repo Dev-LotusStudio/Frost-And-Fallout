@@ -1,26 +1,20 @@
-package dev.lotus.studio.database.hibernate.playerdata;
+package dev.lotus.studio.database.playerdata;
 
+import com.j256.ormlite.field.DatabaseField;
+import com.j256.ormlite.table.DatabaseTable;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
-
-@Entity
-@Table(name = "player_data")
+@DatabaseTable(tableName = "player_data")
 public class PlayerDataBase {
 
-    @Id
-    @Column(name = "player_name", nullable = false, unique = true)
+    @DatabaseField(id = true, columnName = "player_name")
     private String playerName;
 
-    @Column(name = "freeze_value", nullable = false)
+    @DatabaseField(columnName = "freeze_value", defaultValue = "30")
     private double freezeValue;
 
-    @Column(name = "radiation_value", nullable = false)
+    @DatabaseField(columnName = "radiation_value", defaultValue = "0")
     private double radiationValue;
 
-    // Конструктори, геттери та сеттери
     public PlayerDataBase() {
     }
 
@@ -28,6 +22,14 @@ public class PlayerDataBase {
         this.playerName = playerName;
         this.freezeValue = freezeValue;
         this.radiationValue = radiationValue;
+    }
+
+    public String getPlayerName() {
+        return playerName;
+    }
+
+    public void setPlayerName(String playerName) {
+        this.playerName = playerName;
     }
 
     public double getFreezeValue() {

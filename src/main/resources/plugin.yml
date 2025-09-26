@@ -7,7 +7,6 @@ libraries:
   - org.xerial:sqlite-jdbc:3.50.3.0
   - com.j256.ormlite:ormlite-jdbc:6.1
   - com.google.guava:guava:32.0.1-android
-  - org.bstats:bstats-bukkit:3.0.0
 commands:
   lotus:
     description: Перезагрузка конфигурации плагина.

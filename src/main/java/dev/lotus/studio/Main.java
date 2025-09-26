@@ -2,7 +2,8 @@ package dev.lotus.studio;
 
 import dev.lotus.studio.database.DatabaseInitializer;
 import dev.lotus.studio.database.playerdata.PlayerDataService;
-import org.bstats.bukkit.Metrics;
+import dev.lotus.studio.safezone.SafeZonePreloaded;
+import dev.lotus.studio.utils.metric.Metrics;
 import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.java.JavaPlugin;
 import dev.lotus.studio.database.savezone.SafeZoneDataService;
@@ -14,6 +15,9 @@ import dev.lotus.studio.event.ArmorEvent;
 import dev.lotus.studio.playerdata.PlayerBar;
 import dev.lotus.studio.playerdata.PlayerManager;
 import dev.lotus.studio.safezone.SafeZoneManager;
+
+import java.util.Optional;
+import java.util.logging.Level;
 
 public final class Main extends JavaPlugin {
 
@@ -27,35 +31,49 @@ public final class Main extends JavaPlugin {
     @Override
     public void onEnable() {
         metric();
-        instance = this;
-        PlayerManager.getInstance().startGlobalTask();
-        //cfg
-        itemManager = new CustomItemManager();
-        databaseInitializer = new DatabaseInitializer(this);
-        playerDataBase = databaseInitializer.getPlayerDataBase();
-        safeZoneDataService = databaseInitializer.getSaveZoneDataService();
+        if (initialize()){
+            getLogger().log(Level.INFO, "Plugin has been enabled!");
+        }
+    }
+
+
+    public boolean initialize() {
+        try {
+            instance = this;
+            PlayerManager.getInstance().startGlobalTask();
+            //cfg
+            itemManager = new CustomItemManager();
+            databaseInitializer = new DatabaseInitializer(this);
+            playerDataBase = databaseInitializer.getPlayerDataBase();
+            safeZoneDataService = databaseInitializer.getSaveZoneDataService();
 
 
 
-        itemManager.loadItems();
-        getServer().getPluginManager().registerEvents(new ArmorEvent(itemManager),this);
-        getServer().getPluginManager().registerEvents(new EatEvent(itemManager),this);
-        getServer().getPluginManager().registerEvents(new JoinLeaveEvent(playerDataBase),this);
-        getLogger().info("Предметы загружены из items.yml.");
+            itemManager.loadItems();
+            getServer().getPluginManager().registerEvents(new ArmorEvent(itemManager),this);
+            getServer().getPluginManager().registerEvents(new EatEvent(itemManager),this);
+            getServer().getPluginManager().registerEvents(new JoinLeaveEvent(playerDataBase),this);
+            getLogger().info("Предметы загружены из items.yml.");
 
-        new PlayerBar(this,itemManager);
+            new PlayerBar(this,itemManager);
 
 
-        new MainCommand("lotus", itemManager);
+            new MainCommand("lotus", itemManager, SafeZoneManager.getInstance());
 
-        SafeZoneManager.getInstance().initialize(safeZoneDataService);
-
+            SafeZoneManager.getInstance().initialize(safeZoneDataService);
+        } catch (Exception e) {
+            getLogger().severe("Exeption Initialize plugin:  " + e.getMessage());
+            return false;
+        }
+        return true;
     }
 
     @Override
     public void onDisable() {
        PlayerManager.getInstance().getGlobalTask().cancel();
-       SafeZoneManager.getInstance().getPreloaded().stopTask();
+        Optional.ofNullable(SafeZoneManager.getInstance().getPreloaded())
+                .ifPresent(SafeZonePreloaded::stopTask);
+
         // Закриття DataBase
         if (databaseInitializer != null) {
             databaseInitializer.closeConnection();
@@ -64,7 +82,7 @@ public final class Main extends JavaPlugin {
         HandlerList.unregisterAll(this);
     }
     private void metric(){
-        int pluginId = 27359;
+        int pluginId = 27372;
         Metrics metrics = new Metrics(this, pluginId);
     }
 

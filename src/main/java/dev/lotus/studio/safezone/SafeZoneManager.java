@@ -11,6 +11,9 @@ import dev.lotus.studio.database.savezone.SafeZoneDataBase;
 import dev.lotus.studio.database.savezone.SafeZoneDataService;
 
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
 public class SafeZoneManager {
@@ -20,12 +23,15 @@ public class SafeZoneManager {
 
     private SafeZoneDataService safeZoneDataService;
 
+    private final Map<UUID, Location> tempPos1 = new ConcurrentHashMap<>();
+    private final Map<UUID, Location> tempPos2 = new ConcurrentHashMap<>();
+
     // Кеш із TTL (щоб вивантажувати непотрібні зони)
+
     private final Cache<Integer, SafeZone> zoneCache = CacheBuilder.newBuilder()
             .expireAfterAccess(5, TimeUnit.MINUTES)
             .maximumSize(500) // захист від переповнення
             .build();
-
     private SafeZonePreloaded preloader;
 
     public static SafeZoneManager getInstance() {
@@ -40,6 +46,7 @@ public class SafeZoneManager {
     }
 
     // Додавання нової зони
+
     public void addSafeZone(SafeZone safeZone) {
         zoneCache.put(safeZone.getZoneID(), safeZone);
         safeZoneDataService.saveProtectZone(
@@ -47,18 +54,18 @@ public class SafeZoneManager {
                 SafeZoneUtils.serializeZone(safeZone.getLocationPair())
         );
     }
-
     // Видалення
+
     public void removeSafeZone(int zoneID) {
         zoneCache.invalidate(zoneID);
         safeZoneDataService.removeProtectZone(zoneID);
     }
-
     // Отримання зони з кешу (або БД, якщо немає в кеші)
-    public void getZoneById(int zoneID) {
+
+    public boolean getZoneById(int zoneID) {
         SafeZone cached = zoneCache.getIfPresent(zoneID);
         if (cached != null) {
-            return;
+            return true;
         }
 
         SafeZoneDataBase dbData = safeZoneDataService.getZoneById(zoneID);
@@ -68,13 +75,15 @@ public class SafeZoneManager {
 
             plugin.getLogger().info("[SafeZoneManager] Loaded zone from DB and cached: "
                     + zone.getZoneName() + " (ID: " + zone.getZoneID() + ")");
+            return true;
         } else {
             plugin.getLogger().warning("[SafeZoneManager] Zone " + zoneID + " not found in DB.");
+            return false;
         }
     }
 
-
     // Перевірка чи гравець в якійсь зоні
+
     public boolean isPlayerInAnyZone(Player player) {
         Location playerLoc = player.getLocation();
         for (SafeZone zone : zoneCache.asMap().values()) {
@@ -86,7 +95,6 @@ public class SafeZoneManager {
         }
         return false;
     }
-
     public List<SafeZoneDataBase> getDataZones(){
         return safeZoneDataService.getAllSaveZones();
     }
@@ -94,5 +102,26 @@ public class SafeZoneManager {
 
     public SafeZonePreloaded getPreloaded() {
         return preloader;
+    }
+
+    public void setTempPos1(UUID playerUUID, Location pos) {
+        tempPos1.put(playerUUID, pos);
+    }
+
+    public Location getTempPos1(UUID playerUUID) {
+        return tempPos1.get(playerUUID);
+    }
+
+    public void setTempPos2(UUID playerUUID, Location pos) {
+        tempPos2.put(playerUUID, pos);
+    }
+
+    public Location getTempPos2(UUID playerUUID) {
+        return tempPos2.get(playerUUID);
+    }
+
+    public void removeTempPositions(UUID playerUUID) {
+        tempPos1.remove(playerUUID);
+        tempPos2.remove(playerUUID);
     }
 }

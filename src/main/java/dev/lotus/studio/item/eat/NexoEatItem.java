@@ -2,6 +2,7 @@ package dev.lotus.studio.item.eat;
 
 import com.nexomc.nexo.api.NexoItems;
 import com.nexomc.nexo.items.ItemBuilder;
+import dev.lotus.studio.item.ItemKeys;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import org.bukkit.NamespacedKey;
@@ -14,8 +15,6 @@ import java.util.List;
 import java.util.Objects;
 
 public final class NexoEatItem implements EatItem {
-    private static final NamespacedKey KEY = new NamespacedKey("frostandfallout", "id");
-
     private final String nexoId;
     private final int radiationValue;
     private final int temperatureValue;
@@ -53,7 +52,7 @@ public final class NexoEatItem implements EatItem {
                     List<TextComponent> components = lore.stream().map(Component::text).toList();
                     meta.lore(components);
                 }
-                meta.getPersistentDataContainer().set(KEY, PersistentDataType.STRING, nexoId);
+                meta.getPersistentDataContainer().set(ItemKeys.FF_ID, PersistentDataType.STRING, nexoId);
                 itemStack.setItemMeta(meta);
             }
             template = itemStack;

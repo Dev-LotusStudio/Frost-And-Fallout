@@ -1,5 +1,6 @@
 package dev.lotus.studio.item.armor;
 
+import dev.lotus.studio.item.ItemKeys;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import org.bukkit.Material;
@@ -13,8 +14,6 @@ import java.util.List;
 import java.util.Objects;
 
 public final class StandardArmor implements CustomItem {
-    private static final NamespacedKey KEY = new NamespacedKey("frostandfallout", "id");
-
     private final String id;
     private final double temperatureResistance;
     private final double radiationResistance;
@@ -54,7 +53,7 @@ public final class StandardArmor implements CustomItem {
                             .toList();
                     meta.lore(components);
                 }
-                meta.getPersistentDataContainer().set(KEY, PersistentDataType.STRING, id);
+                meta.getPersistentDataContainer().set(ItemKeys.FF_ID, PersistentDataType.STRING, id);
                 is.setItemMeta(meta);
             }
             template = is;

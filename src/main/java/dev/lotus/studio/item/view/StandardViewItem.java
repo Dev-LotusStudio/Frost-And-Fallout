@@ -1,5 +1,6 @@
 package dev.lotus.studio.item.view;
 
+import dev.lotus.studio.item.ItemKeys;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import org.bukkit.Material;
@@ -13,8 +14,6 @@ import java.util.List;
 import java.util.Objects;
 
 public final class StandardViewItem implements ViewItem {
-    private static final NamespacedKey KEY = new NamespacedKey("frostandfallout", "id");
-
     private final String viewType;
     private final Material material;
     private final String displayName;
@@ -50,7 +49,7 @@ public final class StandardViewItem implements ViewItem {
                             .toList();
                     meta.lore(components);
                 }
-                meta.getPersistentDataContainer().set(KEY, PersistentDataType.STRING, String.valueOf(material));
+                meta.getPersistentDataContainer().set(ItemKeys.FF_ID, PersistentDataType.STRING, String.valueOf(material));
                 itemStack.setItemMeta(meta);
             }
             template = itemStack;

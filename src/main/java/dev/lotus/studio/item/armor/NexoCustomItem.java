@@ -2,6 +2,7 @@ package dev.lotus.studio.item.armor;
 
 import com.nexomc.nexo.api.NexoItems;
 import com.nexomc.nexo.items.ItemBuilder;
+import dev.lotus.studio.item.ItemKeys;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import org.bukkit.NamespacedKey;
@@ -14,8 +15,6 @@ import java.util.List;
 import java.util.Objects;
 
 public final class NexoCustomItem implements CustomItem {
-    private static final NamespacedKey KEY = new NamespacedKey("frostandfallout", "id");
-
     private final String id;
     private final double temperatureResistance;
     private final double radiationResistance;
@@ -57,7 +56,7 @@ public final class NexoCustomItem implements CustomItem {
                             .toList();
                     meta.lore(components);
                 }
-                meta.getPersistentDataContainer().set(KEY, PersistentDataType.STRING, id);
+                meta.getPersistentDataContainer().set(ItemKeys.FF_ID, PersistentDataType.STRING, id);
                 itemStack.setItemMeta(meta);
             }
             template = itemStack;

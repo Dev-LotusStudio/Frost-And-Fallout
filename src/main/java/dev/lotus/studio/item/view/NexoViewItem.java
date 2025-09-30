@@ -1,5 +1,6 @@
 package dev.lotus.studio.item.view;
 
+import dev.lotus.studio.item.ItemKeys;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import org.bukkit.NamespacedKey;
@@ -14,8 +15,6 @@ import java.util.List;
 import java.util.Objects;
 
 public final class NexoViewItem implements ViewItem {
-    private static final NamespacedKey KEY = new NamespacedKey("frostandfallout", "id");
-
     private final String viewType;
     private final String displayName;
     private final List<String> lore;
@@ -51,7 +50,7 @@ public final class NexoViewItem implements ViewItem {
                     meta.lore(components);
                 }
 
-                meta.getPersistentDataContainer().set(KEY, PersistentDataType.STRING, String.valueOf(id));
+                meta.getPersistentDataContainer().set(ItemKeys.FF_ID, PersistentDataType.STRING, String.valueOf(id));
                 itemStack.setItemMeta(meta);
             }
             template = itemStack;

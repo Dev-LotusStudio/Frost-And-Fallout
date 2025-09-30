@@ -1,5 +1,6 @@
 package dev.lotus.studio.item.armor;
 
+import dev.lotus.studio.item.ItemKeys;
 import io.th0rgal.oraxen.api.OraxenItems;
 import io.th0rgal.oraxen.items.ItemBuilder;
 import net.kyori.adventure.text.Component;
@@ -14,8 +15,6 @@ import java.util.List;
 import java.util.Objects;
 
 public final class OraxenCustomItem implements CustomItem {
-    private static final NamespacedKey KEY = new NamespacedKey("frostandfallout", "id");
-
     private final String id;
     private final double temperatureResistance;
     private final double radiationResistance;
@@ -55,7 +54,7 @@ public final class OraxenCustomItem implements CustomItem {
                             .toList();
                     meta.lore(components);
                 }
-                meta.getPersistentDataContainer().set(KEY, PersistentDataType.STRING, id);
+                meta.getPersistentDataContainer().set(ItemKeys.FF_ID, PersistentDataType.STRING, id);
                 itemStack.setItemMeta(meta);
             }
             template = itemStack;

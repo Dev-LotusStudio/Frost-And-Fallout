@@ -1,5 +1,6 @@
 package dev.lotus.studio.item.eat;
 
+import dev.lotus.studio.item.ItemKeys;
 import io.th0rgal.oraxen.api.OraxenItems;
 import io.th0rgal.oraxen.items.ItemBuilder;
 import net.kyori.adventure.text.Component;
@@ -14,8 +15,6 @@ import java.util.List;
 import java.util.Objects;
 
 public final class OraxenEatItem implements EatItem {
-    private static final NamespacedKey KEY = new NamespacedKey("frostandfallout", "id");
-
     private final String oraxenId;
     private final int radiationValue;
     private final int temperatureValue;
@@ -55,7 +54,7 @@ public final class OraxenEatItem implements EatItem {
                     List<TextComponent> components = lore.stream().map(Component::text).toList();
                     meta.lore(components);
                 }
-                meta.getPersistentDataContainer().set(KEY, PersistentDataType.STRING, oraxenId);
+                meta.getPersistentDataContainer().set(ItemKeys.FF_ID, PersistentDataType.STRING, oraxenId);
                 itemStack.setItemMeta(meta);
             }
             template = itemStack;

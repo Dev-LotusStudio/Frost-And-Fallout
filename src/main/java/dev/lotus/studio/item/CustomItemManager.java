@@ -167,8 +167,7 @@ public class CustomItemManager {
 
         var meta = itemStack.getItemMeta();
 
-        NamespacedKey ffKey = new NamespacedKey("frostandfallout", "id");
-        String ffId = meta.getPersistentDataContainer().get(ffKey, PersistentDataType.STRING);
+        String ffId = meta.getPersistentDataContainer().get(ItemKeys.FF_ID, PersistentDataType.STRING);
         if (ffId != null) {
             for (CustomItem item : items.values()) {
                 if (ffId.equals(item.getCustomItem())) {
@@ -178,8 +177,7 @@ public class CustomItemManager {
             getLogger().warning("ffId есть, но не нашли совпадение в items\n" + itemStack);
         }
 
-        NamespacedKey oraxenKey = new NamespacedKey("oraxen", "id");
-        String oraxenId = meta.getPersistentDataContainer().get(oraxenKey, PersistentDataType.STRING);
+        String oraxenId = meta.getPersistentDataContainer().get(ItemKeys.ORAXEN_ID, PersistentDataType.STRING);
         if (oraxenId != null) {
             for (CustomItem item : items.values()) {
                 if (oraxenId.equals(item.getCustomItem())) {
@@ -187,7 +185,7 @@ public class CustomItemManager {
                 }
                 ItemStack itemItemStack = item.getItemStack();
                 if (itemItemStack.hasItemMeta()) {
-                    String other = itemItemStack.getItemMeta().getPersistentDataContainer().get(oraxenKey, PersistentDataType.STRING);
+                    String other = itemItemStack.getItemMeta().getPersistentDataContainer().get(ItemKeys.ORAXEN_ID, PersistentDataType.STRING);
                     if (oraxenId.equals(other)) return item;
                 }
             }

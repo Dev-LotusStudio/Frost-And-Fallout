@@ -1,5 +1,6 @@
 package dev.lotus.studio.item.eat;
 
+import dev.lotus.studio.item.ItemKeys;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import org.bukkit.Material;
@@ -13,8 +14,6 @@ import java.util.List;
 import java.util.Objects;
 
 public final class StandardEatItem implements EatItem {
-    private static final NamespacedKey KEY = new NamespacedKey("frostandfallout", "id");
-
     private final Material material;
     private final String materialName;
     private final String displayName;
@@ -53,7 +52,7 @@ public final class StandardEatItem implements EatItem {
                     List<TextComponent> components = lore.stream().map(Component::text).toList();
                     meta.lore(components);
                 }
-                meta.getPersistentDataContainer().set(KEY, PersistentDataType.STRING, materialName);
+                meta.getPersistentDataContainer().set(ItemKeys.FF_ID, PersistentDataType.STRING, materialName);
                 itemStack.setItemMeta(meta);
             }
             template = itemStack;

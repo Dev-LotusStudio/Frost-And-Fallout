@@ -9,6 +9,8 @@ import dev.lotus.studio.item.armor.CustomItem;
 import dev.lotus.studio.item.CustomItemManager;
 import dev.lotus.studio.playerdata.PlayerManager;
 
+import static org.bukkit.Bukkit.getLogger;
+
 public class ArmorEvent implements Listener {
     private final CustomItemManager customItemManager;
 
@@ -33,7 +35,7 @@ public class ArmorEvent implements Listener {
 
             // Проверяем, зарегистрирован ли предмет в CustomItemManager
             CustomItem customItem = customItemManager.getCustomItemByItemStack(armorPiece);
-            System.out.println("Найдено " + customItem);
+            getLogger().info("Найдено " + customItem);
             if (customItem != null) {
                 temperatureResistance += customItem.getTemperatureResistance();
                 radiationResistance += customItem.getRadiationResistance();
@@ -43,7 +45,7 @@ public class ArmorEvent implements Listener {
         // Устанавливаем сопротивление для игрока
         PlayerManager.getInstance().getPlayerData(player).setTemperatureResistance(temperatureResistance);
         PlayerManager.getInstance().getPlayerData(player).setRadiationResistance(radiationResistance);
-        System.out.println("Сопротивление температуре: " + temperatureResistance);
-        System.out.println("Сопротивление радиции: " + radiationResistance);
+        getLogger().info("Сопротивление температуре: " + temperatureResistance);
+        getLogger().info("Сопротивление радиции: " + radiationResistance);
     }
 }

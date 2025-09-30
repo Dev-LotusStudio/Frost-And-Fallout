@@ -11,5 +11,5 @@ commands:
   lotus:
     description: Перезагрузка конфигурации плагина.
     usage: /<command>
-    permission: lotusoffseason.armor
+    permission: frostandfallout.armor
     permission-message: "У вас нет прав для выполнения этой команды."

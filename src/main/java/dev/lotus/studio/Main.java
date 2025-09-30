@@ -78,7 +78,7 @@ public final class Main extends JavaPlugin {
         if (databaseInitializer != null) {
             databaseInitializer.closeConnection();
         }
-        getLogger().info("LotusOffSeason plugin disabled!");
+        getLogger().info("Frost and Fallout plugin disabled!");
         HandlerList.unregisterAll(this);
     }
     private void metric(){

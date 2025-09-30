@@ -1,8 +1,8 @@
 package dev.lotus.studio.item.eat;
 
+import com.nexomc.nexo.api.NexoItems;
+import com.nexomc.nexo.items.ItemBuilder;
 import dev.lotus.studio.item.ItemKeys;
-import io.th0rgal.oraxen.api.OraxenItems;
-import io.th0rgal.oraxen.items.ItemBuilder;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import org.bukkit.NamespacedKey;
@@ -14,8 +14,8 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 import java.util.Objects;
 
-public final class OraxenEatItem implements EatItem {
-    private final String oraxenId;
+public final class NexoEatItem implements EatItem {
+    private final String nexoId;
     private final int radiationValue;
     private final int temperatureValue;
     private final String displayName;
@@ -23,12 +23,12 @@ public final class OraxenEatItem implements EatItem {
 
     private ItemStack template;
 
-    public OraxenEatItem(@NotNull String oraxenId,
-                         int radiationValue,
-                         int temperatureValue,
-                         String displayName,
-                         @NotNull List<String> lore) {
-        this.oraxenId = Objects.requireNonNull(oraxenId, "oraxenId");
+    public NexoEatItem(@NotNull String nexoId,
+                       int radiationValue,
+                       int temperatureValue,
+                       String displayName,
+                       @NotNull List<String> lore) {
+        this.nexoId = Objects.requireNonNull(nexoId, "nexoId");
         this.radiationValue = radiationValue;
         this.temperatureValue = temperatureValue;
         this.displayName = displayName;
@@ -37,16 +37,14 @@ public final class OraxenEatItem implements EatItem {
 
     @Override public int getRadiationValue() { return radiationValue; }
     @Override public int getTemperatureValue() { return temperatureValue; }
-    @Override public @NotNull String getEatItem() { return oraxenId; }
+    @Override public @NotNull String getEatItem() { return nexoId; }
 
     @Override
     public @NotNull ItemStack getItemStack() {
         if (template == null) {
-            ItemBuilder itemBuilder = OraxenItems.getItemById(oraxenId);
-            if (itemBuilder == null) {
-                throw new IllegalArgumentException("Oraxen предмет с ID '" + oraxenId + "' не найден.");
-            }
-            ItemStack itemStack = itemBuilder.build();
+            ItemBuilder itemBuilder = NexoItems.itemFromId(nexoId);
+            if (itemBuilder == null) throw new IllegalArgumentException("Nexo item '" + nexoId + "' не найден");
+            ItemStack itemStack = itemBuilder.build().clone();
             ItemMeta meta = itemStack.getItemMeta();
             if (meta != null) {
                 if (displayName != null) meta.displayName(Component.text(displayName));
@@ -54,7 +52,7 @@ public final class OraxenEatItem implements EatItem {
                     List<TextComponent> components = lore.stream().map(Component::text).toList();
                     meta.lore(components);
                 }
-                meta.getPersistentDataContainer().set(ItemKeys.FF_ID, PersistentDataType.STRING, oraxenId);
+                meta.getPersistentDataContainer().set(ItemKeys.FF_ID, PersistentDataType.STRING, nexoId);
                 itemStack.setItemMeta(meta);
             }
             template = itemStack;

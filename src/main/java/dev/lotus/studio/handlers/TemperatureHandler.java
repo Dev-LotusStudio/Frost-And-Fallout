@@ -172,7 +172,7 @@ public class TemperatureHandler {
         progressBar = progressBar.append(Component.text("]"));
 
         if (showValue) {
-            String numberValue = String.format("%2.1f", absoluteValue);
+            String numberValue = String.format(" %2.1f", absoluteValue);
             progressBar = progressBar.append(Component.text(numberValue).color(TextColor.color(0xFFFFFF)));
         }
 

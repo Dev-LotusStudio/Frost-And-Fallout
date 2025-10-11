@@ -25,21 +25,21 @@ public class HelpCommand implements SubCommand {
 
         // Item commands
         player.sendMessage(Component.text()
-                .append(Component.text("/item armor", NamedTextColor.WHITE)
+                .append(Component.text("/faf item armor", NamedTextColor.WHITE)
                         .hoverEvent(HoverEvent.showText(Component.text("Equip or modify armor pieces", NamedTextColor.AQUA)))
                         .clickEvent(ClickEvent.suggestCommand("/item armor")))
                 .append(Component.text(" - Armor management", NamedTextColor.GRAY))
         );
 
         player.sendMessage(Component.text()
-                .append(Component.text("/item view", NamedTextColor.WHITE)
+                .append(Component.text("/faf item view", NamedTextColor.WHITE)
                         .hoverEvent(HoverEvent.showText(Component.text("Inspect item details", NamedTextColor.AQUA)))
                         .clickEvent(ClickEvent.suggestCommand("/item view")))
                 .append(Component.text(" - View custom items", NamedTextColor.GRAY))
         );
 
         player.sendMessage(Component.text()
-                .append(Component.text("/item eat", NamedTextColor.WHITE)
+                .append(Component.text("/faf item eat", NamedTextColor.WHITE)
                         .hoverEvent(HoverEvent.showText(Component.text("Consume custom food items", NamedTextColor.AQUA)))
                         .clickEvent(ClickEvent.suggestCommand("/item eat")))
                 .append(Component.text(" - Eat special food", NamedTextColor.GRAY))
@@ -47,35 +47,35 @@ public class HelpCommand implements SubCommand {
 
         // SafeZone commands
         player.sendMessage(Component.text()
-                .append(Component.text("/savezone pos1", NamedTextColor.DARK_AQUA)
+                .append(Component.text("/faf savezone pos1", NamedTextColor.DARK_AQUA)
                         .hoverEvent(HoverEvent.showText(Component.text("Set the first corner of the SafeZone", NamedTextColor.WHITE)))
                         .clickEvent(ClickEvent.suggestCommand("/savezone pos1")))
                 .append(Component.text(" - Set first point", NamedTextColor.GRAY))
         );
 
         player.sendMessage(Component.text()
-                .append(Component.text("/savezone pos2", NamedTextColor.DARK_AQUA)
+                .append(Component.text("/faf savezone pos2", NamedTextColor.DARK_AQUA)
                         .hoverEvent(HoverEvent.showText(Component.text("Set the second corner of the SafeZone", NamedTextColor.WHITE)))
                         .clickEvent(ClickEvent.suggestCommand("/savezone pos2")))
                 .append(Component.text(" - Set second point", NamedTextColor.GRAY))
         );
 
         player.sendMessage(Component.text()
-                .append(Component.text("/savezone save <name>", NamedTextColor.DARK_AQUA)
+                .append(Component.text("/faf savezone save <name>", NamedTextColor.DARK_AQUA)
                         .hoverEvent(HoverEvent.showText(Component.text("Save a SafeZone with the given name", NamedTextColor.WHITE)))
                         .clickEvent(ClickEvent.suggestCommand("/savezone save ")))
                 .append(Component.text(" - Save zone", NamedTextColor.GRAY))
         );
 
         player.sendMessage(Component.text()
-                .append(Component.text("/savezone list", NamedTextColor.DARK_AQUA)
+                .append(Component.text("/faf savezone list", NamedTextColor.DARK_AQUA)
                         .hoverEvent(HoverEvent.showText(Component.text("List all saved SafeZones", NamedTextColor.WHITE)))
                         .clickEvent(ClickEvent.suggestCommand("/savezone list")))
                 .append(Component.text(" - List zones", NamedTextColor.GRAY))
         );
 
         player.sendMessage(Component.text()
-                .append(Component.text("/savezone remove <ID>", NamedTextColor.DARK_AQUA)
+                .append(Component.text("/faf savezone remove <ID>", NamedTextColor.DARK_AQUA)
                         .hoverEvent(HoverEvent.showText(Component.text("Remove a SafeZone by its ID", NamedTextColor.WHITE)))
                         .clickEvent(ClickEvent.suggestCommand("/savezone remove ")))
                 .append(Component.text(" - Remove zone", NamedTextColor.GRAY))
@@ -83,7 +83,7 @@ public class HelpCommand implements SubCommand {
 
         // Help command
         player.sendMessage(Component.text()
-                .append(Component.text("/help", NamedTextColor.BLUE)
+                .append(Component.text("/faf help", NamedTextColor.BLUE)
                         .hoverEvent(HoverEvent.showText(Component.text("Show this help message", NamedTextColor.WHITE)))
                         .clickEvent(ClickEvent.suggestCommand("/help")))
                 .append(Component.text(" - Show commands", NamedTextColor.GRAY))

@@ -53,7 +53,6 @@ public class MainCommand extends AbstractCommand {
         }
 
         if (args.length == 0) {
-            // Викликаємо HelpCommand вручну
             SubCommand help = subCommands.get("help");
             if (help != null) {
                 return help.execute(player, new String[0]);

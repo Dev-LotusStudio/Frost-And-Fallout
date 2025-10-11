@@ -24,11 +24,15 @@ repositories {
     maven {
         url "https://repo.oraxen.com/releases"
     }
+    maven {
+        url "https://repo.nexomc.com/releases"
+    }
 }
 
 dependencies {
     compileOnly("io.papermc.paper:paper-api:1.21.1-R0.1-SNAPSHOT")
     compileOnly 'io.th0rgal:oraxen:1.184.1'
+    compileOnly("com.nexomc:nexo:1.10.0")
     compileOnly("com.sk89q.worldedit:worldedit-bukkit:7.2.15")
 
     implementation('com.google.guava:guava:32.0.1-android')

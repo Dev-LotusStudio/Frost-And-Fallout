@@ -1,4 +1,4 @@
-package dev.lotus.studio.item.armor;
+package dev.lotus.studio.item.view;
 
 import dev.lotus.studio.item.ItemKeys;
 import io.th0rgal.oraxen.api.OraxenItems;
@@ -14,37 +14,32 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 import java.util.Objects;
 
-public final class OraxenCustomItem implements CustomItem {
-    private final String id;
-    private final double temperatureResistance;
-    private final double radiationResistance;
+public final class OraxenViewItem implements ViewItem {
+    private final String viewType;
     private final String displayName;
     private final List<String> lore;
+    private final String id;
 
     private ItemStack template;
 
-    public OraxenCustomItem(@NotNull String oraxenId,
-                            double temperatureResistance,
-                            double radiationResistance,
-                            String displayName,
-                            @NotNull List<String> lore) {
-        this.id = Objects.requireNonNull(oraxenId, "oraxenId");
-        this.temperatureResistance = temperatureResistance;
-        this.radiationResistance = radiationResistance;
+    public OraxenViewItem(@NotNull String id, String displayName, @NotNull List<String> lore, @NotNull String viewType) {
+        this.id = Objects.requireNonNull(id, "oraxenId");
         this.displayName = displayName;
         this.lore = List.copyOf(lore);
+        this.viewType = Objects.requireNonNull(viewType, "viewType");
     }
 
-    @Override public @NotNull String getCustomItem() { return id; }
-    @Override public double getTemperatureResistance() { return temperatureResistance; }
-    @Override public double getRadiationResistance() { return radiationResistance; }
+    @Override
+    public @NotNull String getViewType() {
+        return viewType;
+    }
 
     @Override
     public @NotNull ItemStack getItemStack() {
         if (template == null) {
-            ItemBuilder builder = OraxenItems.getItemById(id);
-            if (builder == null) throw new IllegalArgumentException("Oraxen предмет с ID '" + id + "' не найден");
-            ItemStack itemStack = builder.build();
+            ItemBuilder itemBuilder = OraxenItems.getItemById(id);
+            if (itemBuilder == null) { throw new IllegalArgumentException("Oraxen предмет с ID '" + id + "' не найден"); }
+            ItemStack itemStack = itemBuilder.build();
             ItemMeta meta = itemStack.getItemMeta();
             if (meta != null) {
                 if (displayName != null) meta.displayName(Component.text(displayName));
@@ -54,7 +49,7 @@ public final class OraxenCustomItem implements CustomItem {
                             .toList();
                     meta.lore(components);
                 }
-                meta.getPersistentDataContainer().set(ItemKeys.FF_ID, PersistentDataType.STRING, id);
+                meta.getPersistentDataContainer().set(ItemKeys.FF_ID, PersistentDataType.STRING, String.valueOf(id));
                 itemStack.setItemMeta(meta);
             }
             template = itemStack;

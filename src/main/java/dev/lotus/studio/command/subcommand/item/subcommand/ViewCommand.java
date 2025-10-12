@@ -22,20 +22,20 @@ public class ViewCommand extends AbstractItemSubCommand {
 
     @Override
     public String getUsage() {
-        return "<give|list|help>";
+        return "[give | list | help]";
     }
 
     @Override
-    public boolean execute(Player player, String[] args) {
+    public boolean perform(Player player, String[] args) {
         if (args.length == 0) {
-            player.sendMessage("§7Использование: " + getFullUsage("lotus item"));
+            player.sendMessage(getFullUsage("faf item"));
             return true;
         }
 
         switch (args[0].toLowerCase()) {
             case "give" -> {
                 if (args.length != 2) {
-                    player.sendMessage("§7Использование: /lotus item view give <itemKey>");
+                    player.sendMessage("§7Использование: /faf item view give <itemKey>");
                     return true;
                 }
                 var viewItem = itemManager.getViewItem(args[1]);
@@ -60,7 +60,7 @@ public class ViewCommand extends AbstractItemSubCommand {
                 player.sendMessage("/main item view list");
                 player.sendMessage("/main item view help");
             }
-            default -> player.sendMessage("§cНеизвестная команда. " + getFullUsage("lotus item"));
+            default -> player.sendMessage(getFullUsage("faf item"));
         }
 
         return true;

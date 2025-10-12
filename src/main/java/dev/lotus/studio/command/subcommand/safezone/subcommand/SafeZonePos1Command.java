@@ -27,9 +27,9 @@ public class SafeZonePos1Command extends AbstractSafeZoneSubCommand {
     }
 
     @Override
-    public boolean execute(Player player, String[] args) {
+    public boolean perform(Player player, String[] args) {
         if (args.length != 0){
-            player.sendMessage(getFullUsage("lotus safezone"));
+            player.sendMessage(getFullUsage("faf safezone"));
             return true;
         }
         Location pos1 = player.getLocation();

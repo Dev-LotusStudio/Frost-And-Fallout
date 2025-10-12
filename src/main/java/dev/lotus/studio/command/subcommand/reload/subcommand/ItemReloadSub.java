@@ -26,7 +26,7 @@ public class ItemReloadSub extends AbstractReloadCommand {
     }
 
     @Override
-    public boolean execute(Player player, String[] args) {
+    public boolean perform(Player player, String[] args) {
         if (args.length == 0){
             try {
                 itemManager.reloadItemConfig();
@@ -34,7 +34,7 @@ public class ItemReloadSub extends AbstractReloadCommand {
                 Main.getInstance().getLogger().log(Level.WARNING, "Failed to reload item config:" + e.getMessage());
             }
         } else {
-            player.sendMessage(getFullUsage("lotus reload"));
+            player.sendMessage(getFullUsage("faf reload"));
         }
         return false;
     }

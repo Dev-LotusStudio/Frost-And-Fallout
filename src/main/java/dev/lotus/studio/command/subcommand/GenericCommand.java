@@ -1,6 +1,8 @@
 package dev.lotus.studio.command.subcommand;
 
 
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.entity.Player;
 
 import java.util.Arrays;
@@ -28,24 +30,44 @@ public class GenericCommand<T extends SubCommand> implements SubCommand {
     public String getUsage() {
         String children = subCommands.stream()
                 .map(SubCommand::getName)
-                .reduce((a, b) -> a + "|" + b)
+                .reduce((a, b) -> a + " | " + b)
                 .orElse("");
-        return "/" + name + " <" + children + ">";
+        return "/" + name + " [ " + children + " ]";
     }
 
-    public String getFullUsage(String parentChain) {
+    @Override
+    public Component getFullUsage(String parentChain) {
+        // Формуємо повний ланцюжок команд
         String full = (parentChain == null || parentChain.isEmpty())
-                ? name
-                : parentChain + " " + name;
+                ? "/" + name
+                : "/" + parentChain + " " + name;
 
-        return "/" + full + " ..."; // для опису групи
+        // Формуємо список підкоманд
+        String children = subCommands.stream()
+                .map(SubCommand::getName)
+                .reduce((a, b) -> a + " | " + b)
+                .orElse("...");
+
+        return Component.text("Invalid command usage.", NamedTextColor.RED)
+                .append(Component.newline())
+                .append(Component.text("Correct: ", NamedTextColor.GRAY))
+                .append(Component.text(full + " ", NamedTextColor.AQUA))
+                .append(Component.text("[ " + children + " ]", NamedTextColor.GRAY));
     }
+
+
+
 
 
     @Override
     public boolean execute(Player player, String[] args) {
+        if (!player.hasPermission(Permission.USE.getNode())){
+            player.sendMessage("you don't have permission");
+            return true;
+        }
+
         if (args.length == 0) {
-            player.sendMessage(getUsage());
+            player.sendMessage(getFullUsage("faf"));
             return true;
         }
 
@@ -56,7 +78,7 @@ public class GenericCommand<T extends SubCommand> implements SubCommand {
             }
         }
 
-        player.sendMessage("§cНеизвестная подкоманда. " + getUsage());
+        player.sendMessage(getFullUsage("faf"));
         return true;
     }
 

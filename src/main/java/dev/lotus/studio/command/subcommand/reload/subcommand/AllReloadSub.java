@@ -27,7 +27,7 @@ public class AllReloadSub extends AbstractReloadCommand {
     }
 
     @Override
-    public boolean execute(Player player, String[] args) {
+    public boolean perform(Player player, String[] args) {
         if (args.length == 0){
             try {
                 Optional.ofNullable(Main.getInstance()).ifPresent(Main::initialize);
@@ -37,7 +37,7 @@ public class AllReloadSub extends AbstractReloadCommand {
                 System.out.println(e.getMessage());
             }
             return true;
-        } else player.sendMessage(getFullUsage("lotus reload"));
+        } else player.sendMessage(getFullUsage("faf reload"));
         return true;
     }
 

@@ -53,7 +53,11 @@ public class MainCommand extends AbstractCommand {
         }
 
         if (args.length == 0) {
-            player.sendMessage("§aИспользуйте /" + label + " help");
+            SubCommand help = subCommands.get("help");
+            if (help != null) {
+                return help.execute(player, new String[0]);
+            }
+            player.sendMessage("§cПомилка: команда допомоги не знайдена!");
             return true;
         }
 
@@ -63,7 +67,7 @@ public class MainCommand extends AbstractCommand {
             return true;
         }
 
-        // делегуємо вниз, напр. в ItemCommand
+        // делегуємо
         return sub.execute(player, Arrays.copyOfRange(args, 1, args.length));
     }
 

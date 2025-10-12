@@ -25,9 +25,9 @@ public class SafeZoneRemoveCommand extends AbstractSafeZoneSubCommand {
     }
 
     @Override
-    public boolean execute(Player player, String[] args) {
+    public boolean perform(Player player, String[] args) {
         if (args.length < 1) { // перевіряємо, що після remove є аргумент
-            player.sendMessage(getFullUsage("lotus safezone"));
+            player.sendMessage(getFullUsage("faf safezone"));
             return true;
         }
 

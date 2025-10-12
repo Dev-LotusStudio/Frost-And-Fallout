@@ -26,9 +26,9 @@ public class SafeZonePos2Command extends AbstractSafeZoneSubCommand {
     }
 
     @Override
-    public boolean execute(Player player, String[] args) {
+    public boolean perform(Player player, String[] args) {
         if (args.length != 0){
-            player.sendMessage(getFullUsage("lotus safezone"));
+            player.sendMessage(getFullUsage("faf safezone"));
             return true;
         }
         manager.setTempPos2(player.getUniqueId(), player.getLocation());

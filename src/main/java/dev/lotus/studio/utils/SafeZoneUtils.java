@@ -25,7 +25,7 @@ public class SafeZoneUtils {
                 (py >= y1 && py <= y2) &&
                 (pz >= z1 && pz <= z2);
     }
-
+    // ggwp
     public static String serializeZone(Pair<Location, Location> pair) {
         return formatLoc(pair.getLeft()) + "|" + formatLoc(pair.getRight());
     }
